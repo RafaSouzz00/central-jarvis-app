@@ -66,6 +66,26 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:8px 0 0}
 .nl{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid #14284d;color:var(--tx);font:inherit;padding:12px 0;min-height:44px;cursor:pointer}
 .btn.alt{background:var(--panel);color:var(--tx);border:1px solid var(--line)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+
+.note-list{display:flex;flex-direction:column;gap:8px}
+.note-item{display:flex;align-items:center;gap:12px;width:100%;padding:12px;background:rgba(7,18,38,.62);border:1px solid rgba(58,160,255,.13);border-radius:12px;color:var(--tx);text-align:left;cursor:pointer;min-height:64px}
+.note-item:active{background:rgba(58,160,255,.12)}
+.note-icon{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:11px;background:rgba(58,160,255,.12);color:#8cc8ff;font-size:1.05rem}
+.note-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.note-title{font-size:.94rem;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.note-sub{font-size:.75rem;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note-arrow{color:var(--mut);font-size:1.25rem}
+.note-heading{margin:14px 0 4px;font-size:1.12rem;font-weight:650;line-height:1.3;color:#eaf2ff}
+.note-content{line-height:1.65;overflow-wrap:anywhere}
+.note-content p{margin:8px 0;color:#d7e5f8}
+.note-content ul{padding-left:18px;list-style:disc}
+.note-content li{padding:3px 0;color:#d7e5f8}
+.note-content strong{color:#fff;font-weight:650}
+.note-content code{background:#071226;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#a9d4ff}
+.note-section{background:rgba(7,18,38,.48);border:1px solid rgba(58,160,255,.12);border-radius:12px;padding:12px;margin-top:10px}
+.note-check{display:flex;gap:11px;align-items:center;padding:10px 2px;border-bottom:1px solid #14284d}
+.note-check:last-child{border-bottom:0}
+.note-check input{width:20px;min-height:20px;margin:0;flex:0 0 20px}
 </style>
 </head>
 <body>
@@ -75,7 +95,7 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:8px 0 0}
 var TZ='America/Sao_Paulo';
 var CATS={'Pessoal':'#3aa0ff','Música':'#b366ff','Fé':'#7c6cff','Estudos':'#22d3ee','Futebol':'#22c55e','Finanças':'#facc15','Empreendedorismo':'#fb923c','Objetivos':'#86efac','Diário':'#f472b6'};
 var DIA=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='',classifyChoice='',classifyReview=false,classifyMsg='',classifyBusy=false,relatedSelection=[],relatedReview=false,relatedMsg='',relatedBusy=false;
+var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='',classifyChoice='',classifyReview=false,classifyMsg='',classifyBusy=false,relatedSelection=[],relatedReview=false,relatedMsg='',relatedBusy=false,suggestedRelated=[],suggestBusy=false,noteTitles={};
 
 function load(){try{var r=localStorage.getItem('cj_tasks');tasks=r?JSON.parse(r):[]}catch(e){tasks=mem||[]}}
 function save(){try{localStorage.setItem('cj_tasks',JSON.stringify(tasks))}catch(e){mem=tasks}}
@@ -141,7 +161,7 @@ function vCerebro(c){var cnt={},total=0;Object.keys(CATS).forEach(function(k){cn
  +(selCat?'<div class="card"><h2>'+selCat+'</h2>'+(sel.length?sel.map(function(t){return taskHTML(t,c)}).join(''):'<div class="mut">Sem registros nesta categoria.</div>')+'</div>':'')}
 
 function vProjeto(){var L=[['Dashboard e navegação','impl'],['Rotina fixa e agenda semanal','impl'],['Tarefas: atrasadas, hoje, concluídas, todas','impl'],['Cérebro com dados reais das tarefas','impl'],
- ['Leitura das notas do cofre (GitHub)','impl'],['Caixa de Entrada: gravar nota no cofre','impl'],['Classificação da Caixa de Entrada','impl'],['Chat com IA','plan'],['Diário às 22h','plan'],['Notificações push','plan'],['Objetivos e relatórios','plan'],['Clima de Belo Horizonte','plan']];
+ ['Leitura das notas do cofre (GitHub)','impl'],['Caixa de Entrada: gravar nota no cofre','impl'],['Classificação da Caixa de Entrada','impl'],['Conexões manuais entre notas','impl'],['Sugestões locais de notas relacionadas','impl'],['Chat com IA','plan'],['Diário às 22h','plan'],['Notificações push','plan'],['Objetivos e relatórios','plan'],['Clima de Belo Horizonte','plan']];
  return '<h1>Projeto</h1><p class="sub">Estado real de cada funcionalidade. Nada consta como testado: os testes no seu iPhone ainda não foram feitos.</p>'
  +'<div class="card">'+L.map(function(x){return '<div class="st"><span>'+x[0]+'</span><span class="tag '+x[1]+'">'+(x[1]=='impl'?'Implementado':'Planejado')+'</span></div>'}).join('')+'</div>'
  +'<div class="card mut">As tarefas e o token ficam apenas neste aparelho. As tarefas ainda não têm sincronização nem backup.</div>'}
@@ -155,11 +175,43 @@ function diag(){var t='Repositório não encontrado. Tentei acessar '+cfg.owner+
  return fetch('https://api.github.com/user/repos?per_page=100',{headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json'}}).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(l){
   vmsg=t+(l.length?'O token enxerga: '+l.map(function(x){return x.full_name}).join(', ')+'.':'O token não enxerga nenhum repositório. Confira “Repository access” no token.')}).catch(function(e){vmsg=t+'Diagnóstico adicional: '+fail(e)})}
 function fail(e){return e&&e.name=='TypeError'?'Sem conexão com o GitHub.':(e&&e.message)||'Falha desconhecida.'}
+function noteTitle(path){
+ if(noteTitles[path])return noteTitles[path];
+ var base=path.split('/').pop().replace(/\.md$/i,'').replace(/^\d{4}-\d{2}-\d{2}[-_]?\d{0,6}[-_ ]*/,'').replace(/[_-]+/g,' ').replace(/^#+\s*/,'').trim();
+ return base||'Nota sem título';
+}
+function titleFromNote(path,text){
+ var body=String(text||'').replace(/^---\r?\n[\s\S]*?\r?\n---\s*/,'');
+ var title=(String(text||'').match(/^(?:titulo|title)\s*:\s*["']?(.+?)["']?\s*$/mi)||[])[1];
+ if(!title)title=(body.match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/m)||[])[1];
+ if(!title)title=body.split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean)[0]||'';
+ title=String(title).replace(/^#{1,6}\s*/,'').replace(/^[-*>]+\s*/,'').replace(/\*\*/g,'').replace(/`/g,'').replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g,'$1').trim();
+ if(/^\d{4}-\d{2}-\d{2}/.test(title)||!title)return noteTitle(path);
+ return title.length>76?title.slice(0,73).trim()+'…':title;
+}
+function noteFolder(path){var parts=path.split('/');return parts.length>1?parts.slice(0,-1).join(' / '):'Cofre pessoal'}
+function loadNoteTitles(paths){
+ var pending=paths.filter(function(path){return !noteTitles[path]}),index=0;
+ function batch(){var group=pending.slice(index,index+5);index+=5;if(!group.length)return Promise.resolve();
+  return Promise.all(group.map(function(path){return gh('/contents/'+path.split('/').map(encodeURIComponent).join('/')+'?ref=main',true).then(function(r){if(!r.ok)throw httpErr(r);return r.text()}).then(function(t){noteTitles[path]=titleFromNote(path,t)}).catch(function(){noteTitles[path]=noteTitle(path)})})).then(batch)
+ }
+ return batch();
+}
+function inlineNoteText(value){return esc(value).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g,function(_,target,label){return label||target});}
+function prettyNoteContent(text){
+ var body=String(text||'').replace(/^---\r?\n[\s\S]*?\r?\n---\s*/,'').trim();
+ if(!body)return '<p class="mut">Esta nota está vazia.</p>';
+ return body.split(/\r?\n/).map(function(line){var t=line.trim();if(!t)return '';
+  var head=t.match(/^(#{1,6})\s+(.+?)\s*#*$/);if(head)return '<h3 class="note-heading">'+inlineNoteText(head[2])+'</h3>';
+  var bullet=t.match(/^[-*+]\s+(.+)$/);if(bullet)return '<p>• '+inlineNoteText(bullet[1])+'</p>';
+  return '<p>'+inlineNoteText(t)+'</p>';
+ }).join('');
+}
 function fetchNotes(){vmsg='';loading=true;render();
  return gh('/git/trees/main?recursive=1').then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){
   notes=j.tree.filter(function(x){return x.type=='blob'&&/\.md$/i.test(x.path)&&x.path.charAt(0)!='.'}).map(function(x){return x.path}).sort();
-  vmsg=j.truncated?'Lista parcial: o repositório é grande demais para esta consulta.':''}).catch(function(e){notes=null;vmsg=fail(e);if(e&&e.status==404)return diag()}).then(function(){loading=false;render()})}
-function openN(p){noteView={path:p,text:'Carregando…'};classifyChoice='';classifyReview=false;classifyMsg='';relatedSelection=[];relatedReview=false;relatedMsg='';render();
+  vmsg=j.truncated?'Lista parcial: o repositório é grande demais para esta consulta.':'';return loadNoteTitles(notes)}).catch(function(e){notes=null;vmsg=fail(e);if(e&&e.status==404)return diag()}).then(function(){loading=false;render()})}
+function openN(p){noteView={path:p,text:'Carregando…'};classifyChoice='';classifyReview=false;classifyMsg='';relatedSelection=[];relatedReview=false;relatedMsg='';suggestedRelated=[];suggestBusy=false;render();
  return gh('/contents/'+p.split('/').map(encodeURIComponent).join('/')+'?ref=main',true).then(function(r){if(!r.ok)throw httpErr(r);return r.text()}).then(function(t){noteView.text=t||'(nota vazia)'}).catch(function(e){noteView.text=fail(e)}).then(render)}
 function b64(t){return btoa(unescape(encodeURIComponent(t)))}
 function decodeB64(t){return decodeURIComponent(escape(atob(String(t||'').replace(/\s/g,''))))}
@@ -191,6 +243,23 @@ function classifyNote(){
  .then(function(){classifyBusy=false;render()})
 }
 function noteLink(path){return '[['+path.replace(/\\/g,'/').replace(/\.md$/i,'')+']]'}
+function noteTerms(text,path){
+ var stop=('sobre entre para pela pelo pelos pelas uma umas uns com sem mais muito muita muitos muitas que quem como onde quando porque por enquanto então também isso essa esse estas estes aquele aquela seus suas dele dela dos das nos nas aos às não sim ser ter foi são está estão estava estavam ter fazer fez pode podem deve devem meu minha meus minhas seu sua seus suas eu você voces nós eles elas ele ela ao de da do em no na os as um e ou se já ainda até após antes cada todo toda todos todas aqui ali lá hoje ontem amanhã ideia ideias tarefa tarefas lembrete lembretes compromisso compromissos nota notas registro registros').split(/\s+/);
+ var words=(String(path||'').replace(/\.md$/i,'')+' '+String(text||'').replace(/^---[\s\S]*?---/,' ')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-z0-9]{4,}/g)||[];
+ var out={};words.forEach(function(w){if(stop.indexOf(w)<0)out[w]=(out[w]||0)+1});return out;
+}
+function similarity(a,b){var common=0,weight=0,na=0,nb=0;Object.keys(a).forEach(function(k){na+=a[k];if(b[k]){common++;weight+=Math.min(a[k],b[k])}});Object.keys(b).forEach(function(k){nb+=b[k]});return {score:common/Math.sqrt(Math.max(1,Object.keys(a).length*Object.keys(b).length)),common:common,weight:weight};}
+function analyzeRelated(){
+ if(!noteView||!notes||suggestBusy)return;
+ suggestBusy=true;relatedMsg='Analisando o conteúdo das notas…';suggestedRelated=[];render();
+ var current=noteTerms(noteView.text,noteView.path),existing=(noteView.text.match(/\[\[([^\]]+)\]\]/g)||[]).map(function(x){return x.slice(2,-2).replace(/\.md$/i,'')});
+ var candidates=notes.filter(function(n){return n!==noteView.path&&existing.indexOf(n.replace(/\.md$/i,''))<0});
+ var results=[],index=0;
+ function batch(){var group=candidates.slice(index,index+5);index+=5;if(!group.length)return Promise.resolve();
+  return Promise.all(group.map(function(path){return gh('/contents/'+path.split('/').map(encodeURIComponent).join('/')+'?ref=main',false).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){if(!j.content)return null;var sim=similarity(current,noteTerms(decodeB64(j.content),path));if(sim.common>=2&&sim.score>=0.16)return {path:path,score:sim.score,common:sim.common};return null}).catch(function(){return null})})).then(function(items){items.forEach(function(x){if(x)results.push(x)});return batch()})
+ }
+ return batch().then(function(){results.sort(function(a,b){return b.score-a.score});suggestedRelated=results.slice(0,8);relatedMsg=suggestedRelated.length?'Análise concluída. Confira as sugestões antes de selecionar.':'Não encontrei relações fortes o suficiente nas notas disponíveis.'}).catch(function(e){relatedMsg='Não foi possível analisar as notas: '+fail(e)}).then(function(){suggestBusy=false;render()});
+}
 function addRelatedLinks(original,paths){
  var links=paths.map(noteLink),text=original;
  var re=/(^|\n)(#{1,6})\s+Notas relacionadas\s*\n([\s\S]*?)(?=\n#{1,6}\s+|$)/i,m=text.match(re);
@@ -232,7 +301,7 @@ function vCofre(){var h='<h1>Cofre</h1><p class="sub">Notas do repositório priv
   var status=(noteView.text.match(/^status\s*:\s*(.+)$/mi)||[])[1]||'';
   var category=(noteView.text.match(/^categoria\s*:\s*"?([^"\r\n]+)"?\s*$/mi)||[])[1]||'';
   var alreadyClassified=/classificado/i.test(status)&&!/não\s+classificado/i.test(status);
-  h+='<div class="card"><button class="del" data-a="back">‹ Voltar</button><h2>'+esc(noteView.path)+'</h2>';
+  h+='<div class="card"><button class="del" data-a="back">‹ Voltar</button><div class="note-heading" style="font-size:1.25rem;margin-top:8px">'+esc(noteTitle(noteView.path))+'</div><div class="note-sub">'+esc(noteFolder(noteView.path))+'</div>';
   if(isInbox&&noteView.text!=='Carregando…'){
    if(alreadyClassified)h+='<div class="aviso">Classificada'+(category?' · '+esc(category):'')+'.</div>';
    else if(classifyReview)h+='<div class="aviso">A nota será classificada como <b>'+esc(classifyChoice)+'</b>. O texto original será mantido; apenas os campos de classificação serão acrescentados ou atualizados.</div><div class="two"><button class="btn" data-a="classifyConfirm" '+(classifyBusy?'disabled':'')+'>Confirmar classificação</button><button class="btn alt" data-a="classifyCancel">Voltar</button></div>';
@@ -241,29 +310,31 @@ function vCofre(){var h='<h1>Cofre</h1><p class="sub">Notas do repositório priv
   }
   if(noteView.text!=='Carregando…'){
    var relatedOptions=(notes||[]).filter(function(n){return n!==noteView.path});
-   h+='<div class="card"><h2>Notas relacionadas</h2><p class="mut">Selecione outras notas do cofre para criar links internos do Obsidian. A nota atual não será alterada até sua confirmação.</p>';
+   h+='<div class="card"><h2>Notas relacionadas</h2><p class="mut">O JARVIS pode comparar o conteúdo das notas e sugerir relações. A análise é local, por palavras-chave; nada é gravado sem sua confirmação.</p>';
+   h+='<button class="btn alt" data-a="analyzeRelated" '+(suggestBusy?'disabled':'')+'>'+(suggestBusy?'Analisando…':'Analisar notas e sugerir relações')+'</button>';
+   if(suggestedRelated.length&&!relatedReview){h+='<div class="aviso">Sugestões encontradas. Marque as que fazem sentido:</div>';suggestedRelated.forEach(function(x){h+='<label class="note-check"><input type="checkbox" data-rel-select="1" data-p="'+esc(x.path)+'" '+(relatedSelection.indexOf(x.path)>=0?'checked':'')+'><span class="note-info"><b class="note-title">'+esc(noteTitle(x.path))+'</b><small class="note-sub">'+esc(noteFolder(x.path))+' · '+x.common+' termos em comum</small></span></label>'})}
    if(relatedReview){
     h+='<div class="aviso">Serão adicionados à nota os seguintes vínculos:</div><ul>';
-    relatedSelection.forEach(function(n){h+='<li class="ev"><span>'+esc(noteLink(n))+'</span></li>'});
+    relatedSelection.forEach(function(n){h+='<li class="note-item"><span class="note-icon">↗</span><span class="note-info"><b class="note-title">'+esc(noteTitle(n))+'</b><small class="note-sub">'+esc(noteFolder(n))+'</small></span></li>'});
     h+='</ul><div class="two"><button class="btn" data-a="relatedConfirm" '+(relatedBusy?'disabled':'')+'>Confirmar conexões</button><button class="btn alt" data-a="relatedCancel">Voltar</button></div>';
    }else if(!relatedOptions.length){
     h+='<div class="mut">Nenhuma outra nota disponível. Atualize a lista do cofre para buscar notas.</div>';
    }else{
     h+='<div style="max-height:260px;overflow:auto">';
-    relatedOptions.forEach(function(n){h+='<label style="display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #14284d"><input type="checkbox" data-rel-select="1" data-p="'+esc(n)+'" style="width:20px;min-height:20px;margin:0" '+(relatedSelection.indexOf(n)>=0?'checked':'')+'><span>'+esc(n)+'</span></label>'});
+    relatedOptions.forEach(function(n){h+='<label class="note-check"><input type="checkbox" data-rel-select="1" data-p="'+esc(n)+'" '+(relatedSelection.indexOf(n)>=0?'checked':'')+'><span class="note-info"><b class="note-title">'+esc(noteTitle(n))+'</b><small class="note-sub">'+esc(noteFolder(n))+'</small></span></label>'});
     h+='</div><button class="btn" data-a="relatedReview" '+(!relatedSelection.length?'disabled':'')+'>Revisar conexões ('+relatedSelection.length+')</button>';
    }
    if(relatedMsg)h+='<div class="aviso">'+esc(relatedMsg)+'</div>';
    h+='</div>';
   }
-  h+='<h2 style="margin-top:14px">Conteúdo original</h2><pre>'+esc(noteView.text)+'</pre></div>';
+  h+='<div class="note-section"><h2>Conteúdo da nota</h2><div class="note-content">'+prettyNoteContent(noteView.text)+'</div></div></div>';
   return h
  }
  h+='<div class="two"><button class="btn" data-a="sync">Atualizar</button><button class="btn alt" data-a="disc">Desconectar</button></div>';
  h+='<div class="card"><h2>Caixa de Entrada</h2>'+(review?'<div class="mut">Confirme o conteúdo que será gravado como nova nota no repositório:</div><pre>'+esc(draft)+'</pre><div class="two" style="margin-top:12px"><button class="btn" data-a="save">Confirmar e gravar</button><button class="btn alt" data-a="cancel">Voltar</button></div>':'<textarea id="nn" placeholder="Escreva uma ideia, um fato ou um registro…" rows="4">'+esc(draft)+'</textarea><button class="btn" data-a="rev">Revisar e gravar</button>')+(wmsg?'<div class="aviso">'+esc(wmsg)+'</div>':'')+'</div>';
  if(loading)h+='<div class="mut">Carregando…</div>';
  if(vmsg)h+='<div class="aviso">'+esc(vmsg)+'</div>';
- if(notes)h+='<div class="card"><h2>'+notes.length+(notes.length==1?' nota':' notas')+'</h2>'+(notes.length?notes.map(function(n){return '<button class="nl" data-a="note" data-p="'+esc(n)+'">'+esc(n)+'</button>'}).join(''):'<div class="mut">Nenhuma nota .md encontrada.</div>')+'</div>';
+ if(notes)h+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px"><h2 style="margin:0">Suas notas</h2><span class="tag impl">'+notes.length+'</span></div>'+(notes.length?'<div class="note-list">'+notes.map(function(n){return '<button class="note-item" data-a="note" data-p="'+esc(n)+'"><span class="note-icon">▤</span><span class="note-info"><b class="note-title">'+esc(noteTitle(n))+'</b><small class="note-sub">'+esc(noteFolder(n))+'</small></span><span class="note-arrow">›</span></button>'}).join('')+'</div>':'<div class="mut">Nenhuma nota encontrada.</div>')+'</div>';
  return h}
 function render(){var c=clock(),h=tab=='inicio'?vInicio(c):tab=='agenda'?vAgenda(c):tab=='tarefas'?vTarefas(c):tab=='cerebro'?vCerebro(c):tab=='cofre'?vCofre():vProjeto();
  document.getElementById('app').innerHTML=h;
@@ -289,6 +360,7 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-a]'
  }
  else if(a=='classifyConfirm'){classifyNote()}
  else if(a=='classifyCancel'){classifyReview=false;classifyMsg=''}
+ else if(a=='analyzeRelated'){analyzeRelated()}
  else if(a=='relatedReview'){relatedMsg='';if(relatedSelection.length)relatedReview=true}
  else if(a=='relatedConfirm'){saveRelated()}
  else if(a=='relatedCancel'){relatedReview=false;relatedMsg=''}
