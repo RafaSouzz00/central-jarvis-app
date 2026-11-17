@@ -35,7 +35,7 @@ li.next{background:rgba(58,160,255,.12);margin:0 -8px;padding:8px;border-radius:
 .mut{color:var(--mut);font-size:.88rem}
 .aviso{border-left:3px solid var(--ac);padding:6px 10px;margin:6px 0;background:rgba(58,160,255,.08);border-radius:0 8px 8px 0;font-size:.92rem}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:rgba(5,11,23,.94);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(8px)}
-nav button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:.74rem;padding:6px 2px;min-height:48px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:.7rem;padding:6px 2px;min-height:48px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
 nav button b{font-size:1.15rem;font-weight:400}
 nav button.on{color:var(--ac)}
 nav button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
@@ -61,6 +61,10 @@ svg text{fill:#cfe3ff;font-size:10px;font-family:inherit}
 .tag.impl{background:rgba(58,160,255,.18);color:#8cc8ff}
 .tag.plan{background:rgba(138,166,204,.15);color:var(--mut)}
 .dim{color:var(--mut)}
+pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:8px 0 0}
+.nl{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid #14284d;color:var(--tx);font:inherit;padding:12px 0;min-height:44px;cursor:pointer}
+.btn.alt{background:var(--panel);color:var(--tx);border:1px solid var(--line)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -70,7 +74,7 @@ svg text{fill:#cfe3ff;font-size:10px;font-family:inherit}
 var TZ='America/Sao_Paulo';
 var CATS={'Pessoal':'#3aa0ff','Música':'#b366ff','Fé':'#7c6cff','Estudos':'#22d3ee','Futebol':'#22c55e','Finanças':'#facc15','Empreendedorismo':'#fb923c','Objetivos':'#86efac','Diário':'#f472b6'};
 var DIA=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null;
+var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false;
 
 function load(){try{var r=localStorage.getItem('cj_tasks');tasks=r?JSON.parse(r):[]}catch(e){tasks=mem||[]}}
 function save(){try{localStorage.setItem('cj_tasks',JSON.stringify(tasks))}catch(e){mem=tasks}}
@@ -136,27 +140,51 @@ function vCerebro(c){var cnt={},total=0;Object.keys(CATS).forEach(function(k){cn
  +(selCat?'<div class="card"><h2>'+selCat+'</h2>'+(sel.length?sel.map(function(t){return taskHTML(t,c)}).join(''):'<div class="mut">Sem registros nesta categoria.</div>')+'</div>':'')}
 
 function vProjeto(){var L=[['Dashboard e navegação','impl'],['Rotina fixa e agenda semanal','impl'],['Tarefas: atrasadas, hoje, concluídas, todas','impl'],['Cérebro com dados reais das tarefas','impl'],
- ['Chat com IA','plan'],['Integração com Obsidian','plan'],['Caixa de Entrada','plan'],['Diário às 22h','plan'],['Notificações push','plan'],['Objetivos e relatórios','plan'],['Clima de Belo Horizonte','plan']];
+ ['Leitura das notas do cofre (GitHub)','impl'],['Gravação de notas no cofre','plan'],['Chat com IA','plan'],['Caixa de Entrada','plan'],['Diário às 22h','plan'],['Notificações push','plan'],['Objetivos e relatórios','plan'],['Clima de Belo Horizonte','plan']];
  return '<h1>Projeto</h1><p class="sub">Estado real de cada funcionalidade. Nada consta como testado: os testes no seu iPhone ainda não foram feitos.</p>'
  +'<div class="card">'+L.map(function(x){return '<div class="st"><span>'+x[0]+'</span><span class="tag '+x[1]+'">'+(x[1]=='impl'?'Implementado':'Planejado')+'</span></div>'}).join('')+'</div>'
- +'<div class="card mut">Seus dados ficam apenas neste navegador, neste aparelho. Ainda não há sincronização nem backup.</div>'}
+ +'<div class="card mut">As tarefas e o token ficam apenas neste aparelho. As tarefas ainda não têm sincronização nem backup.</div>'}
 
-function render(){var c=clock(),h=tab=='inicio'?vInicio(c):tab=='agenda'?vAgenda(c):tab=='tarefas'?vTarefas(c):tab=='cerebro'?vCerebro(c):vProjeto();
+function loadCfg(){try{var r=localStorage.getItem('cj_cfg');if(r)cfg=Object.assign(cfg,JSON.parse(r))}catch(e){}}
+function saveCfg(){try{localStorage.setItem('cj_cfg',JSON.stringify(cfg))}catch(e){}}
+function gh(path,raw){return fetch('https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+path,{headers:{'Authorization':'Bearer '+cfg.token,'Accept':raw?'application/vnd.github.raw+json':'application/vnd.github+json'}})}
+function errMsg(r){return r.status==401?'Token inválido ou expirado.':r.status==403?'Acesso negado ou limite de requisições atingido.':r.status==404?'Repositório não encontrado. Confira usuário, nome do repositório e permissões do token.':'Erro '+r.status+' ao consultar o GitHub.'}
+function fail(e){return e&&e.name=='TypeError'?'Sem conexão com o GitHub.':(e&&e.message)||'Falha desconhecida.'}
+function fetchNotes(){vmsg='';loading=true;render();
+ return gh('/git/trees/main?recursive=1').then(function(r){if(!r.ok)throw new Error(errMsg(r));return r.json()}).then(function(j){
+  notes=j.tree.filter(function(x){return x.type=='blob'&&/\.md$/i.test(x.path)&&x.path.charAt(0)!='.'}).map(function(x){return x.path}).sort();
+  vmsg=j.truncated?'Lista parcial: o repositório é grande demais para esta consulta.':''}).catch(function(e){notes=null;vmsg=fail(e)}).then(function(){loading=false;render()})}
+function openN(p){noteView={path:p,text:'Carregando…'};render();
+ return gh('/contents/'+p.split('/').map(encodeURIComponent).join('/')+'?ref=main',true).then(function(r){if(!r.ok)throw new Error(errMsg(r));return r.text()}).then(function(t){noteView.text=t||'(nota vazia)'}).catch(function(e){noteView.text=fail(e)}).then(render)}
+function vCofre(){var h='<h1>Cofre</h1><p class="sub">Leitura das notas do repositório privado. Somente leitura.</p>';
+ if(!cfg.token)return h+'<div class="card"><h2>Conectar</h2><input id="co" value="'+esc(cfg.owner)+'" placeholder="Usuário do GitHub" autocapitalize="none" autocorrect="off"><input id="cr" value="'+esc(cfg.repo)+'" placeholder="Repositório" autocapitalize="none" autocorrect="off"><input id="ct" type="password" placeholder="Token somente leitura" autocomplete="off" autocapitalize="none" autocorrect="off"><button class="btn" data-a="conn">Conectar</button><p class="mut">O token fica salvo apenas neste aparelho. Use um token somente leitura, restrito a este repositório.</p></div>';
+ if(noteView)return h+'<div class="card"><button class="del" data-a="back">‹ Voltar</button><h2>'+esc(noteView.path)+'</h2><pre>'+esc(noteView.text)+'</pre></div>';
+ h+='<div class="two"><button class="btn" data-a="sync">Atualizar</button><button class="btn alt" data-a="disc">Desconectar</button></div>';
+ if(loading)h+='<div class="mut">Carregando…</div>';
+ if(vmsg)h+='<div class="aviso">'+esc(vmsg)+'</div>';
+ if(notes)h+='<div class="card"><h2>'+notes.length+(notes.length==1?' nota':' notas')+'</h2>'+(notes.length?notes.map(function(n){return '<button class="nl" data-a="note" data-p="'+esc(n)+'">'+esc(n)+'</button>'}).join(''):'<div class="mut">Nenhuma nota .md encontrada.</div>')+'</div>';
+ return h}
+function render(){var c=clock(),h=tab=='inicio'?vInicio(c):tab=='agenda'?vAgenda(c):tab=='tarefas'?vTarefas(c):tab=='cerebro'?vCerebro(c):tab=='cofre'?vCofre():vProjeto();
  document.getElementById('app').innerHTML=h;
- var N=[['inicio','⌂','Início'],['agenda','▦','Agenda'],['tarefas','✓','Tarefas'],['cerebro','✦','Cérebro'],['projeto','≡','Projeto']];
+ var N=[['inicio','⌂','Início'],['agenda','▦','Agenda'],['tarefas','✓','Tarefas'],['cerebro','✦','Cérebro'],['cofre','▤','Cofre'],['projeto','≡','Projeto']];
  document.getElementById('nav').innerHTML=N.map(function(n){return '<button data-a="tab" data-t="'+n[0]+'" class="'+(tab==n[0]?'on':'')+'"><b>'+n[1]+'</b>'+n[2]+'</button>'}).join('')}
 
 document.addEventListener('click',function(e){var el=e.target.closest('[data-a]');if(!el)return;var a=el.getAttribute('data-a'),id=el.getAttribute('data-id');
- if(a=='tab'){tab=el.getAttribute('data-t');delId=null;window.scrollTo(0,0)}
+ if(a=='tab'){tab=el.getAttribute('data-t');delId=null;window.scrollTo(0,0);if(tab=='cofre'&&cfg.token&&notes===null&&!loading)fetchNotes()}
  else if(a=='view'){view=el.getAttribute('data-v')}
  else if(a=='cat'){var k=el.getAttribute('data-k');selCat=selCat==k?null:k}
  else if(a=='add'){var t=document.getElementById('ti').value.trim();if(!t)return;
   tasks.push({id:String(Date.now()),title:t,cat:document.getElementById('tc').value,due:document.getElementById('td').value||'',prio:document.getElementById('tp').value,done:false});save()}
  else if(a=='tog'){tasks.forEach(function(t){if(t.id==id)t.done=!t.done});save()}
  else if(a=='del'){if(delId===id){tasks=tasks.filter(function(t){return t.id!=id});delId=null;save()}else delId=id}
+ else if(a=='conn'){var t=document.getElementById('ct').value.trim();if(!t)return;cfg={owner:document.getElementById('co').value.trim(),repo:document.getElementById('cr').value.trim(),token:t};saveCfg();notes=null;fetchNotes()}
+ else if(a=='sync'){fetchNotes()}
+ else if(a=='note'){openN(el.getAttribute('data-p'))}
+ else if(a=='back'){noteView=null}
+ else if(a=='disc'){cfg.token='';notes=null;noteView=null;vmsg='';saveCfg()}
  render()});
 try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')}catch(e){}
-load();render();setInterval(function(){if(tab=='inicio'&&!document.activeElement.matches('input,select'))render()},30000);
+load();loadCfg();render();setInterval(function(){if(tab=='inicio'&&!document.activeElement.matches('input,select'))render()},30000);
 </script>
 </body>
 </html>
