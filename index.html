@@ -75,7 +75,7 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:8px 0 0}
 var TZ='America/Sao_Paulo';
 var CATS={'Pessoal':'#3aa0ff','Música':'#b366ff','Fé':'#7c6cff','Estudos':'#22d3ee','Futebol':'#22c55e','Finanças':'#facc15','Empreendedorismo':'#fb923c','Objetivos':'#86efac','Diário':'#f472b6'};
 var DIA=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='',classifyChoice='',classifyReview=false,classifyMsg='',classifyBusy=false;
+var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='',classifyChoice='',classifyReview=false,classifyMsg='',classifyBusy=false,relatedSelection=[],relatedReview=false,relatedMsg='',relatedBusy=false;
 
 function load(){try{var r=localStorage.getItem('cj_tasks');tasks=r?JSON.parse(r):[]}catch(e){tasks=mem||[]}}
 function save(){try{localStorage.setItem('cj_tasks',JSON.stringify(tasks))}catch(e){mem=tasks}}
@@ -159,7 +159,7 @@ function fetchNotes(){vmsg='';loading=true;render();
  return gh('/git/trees/main?recursive=1').then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){
   notes=j.tree.filter(function(x){return x.type=='blob'&&/\.md$/i.test(x.path)&&x.path.charAt(0)!='.'}).map(function(x){return x.path}).sort();
   vmsg=j.truncated?'Lista parcial: o repositório é grande demais para esta consulta.':''}).catch(function(e){notes=null;vmsg=fail(e);if(e&&e.status==404)return diag()}).then(function(){loading=false;render()})}
-function openN(p){noteView={path:p,text:'Carregando…'};classifyChoice='';classifyReview=false;classifyMsg='';render();
+function openN(p){noteView={path:p,text:'Carregando…'};classifyChoice='';classifyReview=false;classifyMsg='';relatedSelection=[];relatedReview=false;relatedMsg='';render();
  return gh('/contents/'+p.split('/').map(encodeURIComponent).join('/')+'?ref=main',true).then(function(r){if(!r.ok)throw httpErr(r);return r.text()}).then(function(t){noteView.text=t||'(nota vazia)'}).catch(function(e){noteView.text=fail(e)}).then(render)}
 function b64(t){return btoa(unescape(encodeURIComponent(t)))}
 function decodeB64(t){return decodeURIComponent(escape(atob(String(t||'').replace(/\s/g,''))))}
@@ -190,6 +190,35 @@ function classifyNote(){
  }).catch(function(e){classifyMsg='Não foi possível classificar: '+fail(e)+' Nenhum conteúdo foi descartado.'})
  .then(function(){classifyBusy=false;render()})
 }
+function noteLink(path){return '[['+path.replace(/\\/g,'/').replace(/\.md$/i,'')+']]'}
+function addRelatedLinks(original,paths){
+ var links=paths.map(noteLink),text=original;
+ var re=/(^|\n)(#{1,6})\s+Notas relacionadas\s*\n([\s\S]*?)(?=\n#{1,6}\s+|$)/i,m=text.match(re);
+ if(m){
+  var block=m[3],added=[];
+  links.forEach(function(link){if(block.indexOf(link)===-1&&text.indexOf(link)===-1)added.push('- '+link)});
+  if(!added.length)return text;
+  var replacement=m[1]+m[2]+' Notas relacionadas\n'+block.replace(/\s*$/,'')+'\n'+added.join('\n');
+  return text.replace(re,replacement);
+ }
+ var missing=links.filter(function(link){return text.indexOf(link)===-1});
+ if(!missing.length)return text;
+ return text.replace(/\s*$/,'')+'\n\n## Notas relacionadas\n'+missing.map(function(x){return '- '+x}).join('\n')+'\n';
+}
+function saveRelated(){
+ if(!noteView||!relatedSelection.length||relatedBusy)return;
+ var path=noteView.path,selected=relatedSelection.slice(),apiPath='/contents/'+path.split('/').map(encodeURIComponent).join('/')+'?ref=main';
+ relatedBusy=true;relatedMsg='Salvando conexões…';render();
+ return gh(apiPath,false).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){
+  if(!j.sha||!j.content)throw new Error('Não foi possível obter a versão atual da nota. Nenhuma alteração foi feita.');
+  var original=decodeB64(j.content),updated=addRelatedLinks(original,selected);
+  if(updated===original)throw new Error('As notas selecionadas já estavam vinculadas. Nenhuma alteração foi necessária.');
+  return fetch('https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+path.split('/').map(encodeURIComponent).join('/'),{
+   method:'PUT',headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+   body:JSON.stringify({message:'Conectar notas relacionadas no Obsidian',content:b64(updated),sha:j.sha,branch:'main'})
+  }).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(){noteView.text=updated;relatedSelection=[];relatedReview=false;relatedMsg='Conexões salvas no cofre. Os links Obsidian foram adicionados.'});
+ }).catch(function(e){relatedMsg='Não foi possível conectar as notas: '+fail(e)}).then(function(){relatedBusy=false;render()});
+}
 function saveNote(){var text=draft.trim();if(!text)return;var d=new Date(),iso=isoOf(d),hms=fmt({hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'},d).split(':'),path='Caixa de Entrada/'+iso+'-'+hms.join('')+'.md';
  var body='---\ncriado: '+iso+'T'+hms.join(':')+'-03:00\norigem: app CENTRAL JARVIS\nstatus: não classificado\n---\n\n'+text+'\n';
  wmsg='Gravando…';render();
@@ -209,6 +238,23 @@ function vCofre(){var h='<h1>Cofre</h1><p class="sub">Notas do repositório priv
    else if(classifyReview)h+='<div class="aviso">A nota será classificada como <b>'+esc(classifyChoice)+'</b>. O texto original será mantido; apenas os campos de classificação serão acrescentados ou atualizados.</div><div class="two"><button class="btn" data-a="classifyConfirm" '+(classifyBusy?'disabled':'')+'>Confirmar classificação</button><button class="btn alt" data-a="classifyCancel">Voltar</button></div>';
    else h+='<h2>Classificar nota</h2><p class="mut">Escolha uma categoria. Nada será alterado até sua confirmação.</p><select id="classifyCat"><option value="">Selecione uma categoria</option><option>Tarefa</option><option>Ideia</option><option>Compromisso</option><option>Lembrete</option></select><button class="btn" data-a="classifyReview">Revisar classificação</button>';
    if(classifyMsg)h+='<div class="aviso">'+esc(classifyMsg)+'</div>';
+  }
+  if(noteView.text!=='Carregando…'){
+   var relatedOptions=(notes||[]).filter(function(n){return n!==noteView.path});
+   h+='<div class="card"><h2>Notas relacionadas</h2><p class="mut">Selecione outras notas do cofre para criar links internos do Obsidian. A nota atual não será alterada até sua confirmação.</p>';
+   if(relatedReview){
+    h+='<div class="aviso">Serão adicionados à nota os seguintes vínculos:</div><ul>';
+    relatedSelection.forEach(function(n){h+='<li class="ev"><span>'+esc(noteLink(n))+'</span></li>'});
+    h+='</ul><div class="two"><button class="btn" data-a="relatedConfirm" '+(relatedBusy?'disabled':'')+'>Confirmar conexões</button><button class="btn alt" data-a="relatedCancel">Voltar</button></div>';
+   }else if(!relatedOptions.length){
+    h+='<div class="mut">Nenhuma outra nota disponível. Atualize a lista do cofre para buscar notas.</div>';
+   }else{
+    h+='<div style="max-height:260px;overflow:auto">';
+    relatedOptions.forEach(function(n){h+='<label style="display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #14284d"><input type="checkbox" data-rel-select="1" data-p="'+esc(n)+'" style="width:20px;min-height:20px;margin:0" '+(relatedSelection.indexOf(n)>=0?'checked':'')+'><span>'+esc(n)+'</span></label>'});
+    h+='</div><button class="btn" data-a="relatedReview" '+(!relatedSelection.length?'disabled':'')+'>Revisar conexões ('+relatedSelection.length+')</button>';
+   }
+   if(relatedMsg)h+='<div class="aviso">'+esc(relatedMsg)+'</div>';
+   h+='</div>';
   }
   h+='<h2 style="margin-top:14px">Conteúdo original</h2><pre>'+esc(noteView.text)+'</pre></div>';
   return h
@@ -243,6 +289,9 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-a]'
  }
  else if(a=='classifyConfirm'){classifyNote()}
  else if(a=='classifyCancel'){classifyReview=false;classifyMsg=''}
+ else if(a=='relatedReview'){relatedMsg='';if(relatedSelection.length)relatedReview=true}
+ else if(a=='relatedConfirm'){saveRelated()}
+ else if(a=='relatedCancel'){relatedReview=false;relatedMsg=''}
  else if(a=='back'){noteView=null;classifyReview=false;classifyMsg=''}
  else if(a=='disc'){cfg.token='';notes=null;noteView=null;vmsg='';wmsg='';classifyChoice='';classifyReview=false;classifyMsg='';saveCfg()}
  else if(a=='rev'){var ta=document.getElementById('nn');if(ta)draft=ta.value;if(!draft.trim())return;review=true;wmsg=''}
@@ -251,7 +300,15 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-a]'
  render()});
 try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')}catch(e){}
 document.addEventListener('input',function(e){if(e.target&&e.target.id=='nn')draft=e.target.value});
-document.addEventListener('change',function(e){if(e.target&&e.target.id=='classifyCat'){classifyChoice=e.target.value;classifyMsg=''}});
+document.addEventListener('change',function(e){
+ if(e.target&&e.target.id=='classifyCat'){classifyChoice=e.target.value;classifyMsg=''}
+ if(e.target&&e.target.getAttribute('data-rel-select')=='1'){
+  var path=e.target.getAttribute('data-p');
+  if(e.target.checked){if(relatedSelection.indexOf(path)<0)relatedSelection.push(path)}
+  else relatedSelection=relatedSelection.filter(function(x){return x!==path});
+  relatedMsg='';render();
+ }
+});
 load();loadCfg();render();setInterval(function(){if(tab=='inicio'&&!document.activeElement.matches('input,select'))render()},30000);
 </script>
 </body>
