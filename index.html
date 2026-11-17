@@ -85,6 +85,7 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:8px 0 0}
 .note-section{background:rgba(7,18,38,.48);border:1px solid rgba(58,160,255,.12);border-radius:12px;padding:12px;margin-top:10px}
 .note-check{display:flex;gap:11px;align-items:center;padding:10px 2px;border-bottom:1px solid #14284d}
 .note-check:last-child{border-bottom:0}
+.agenda-group{margin-top:10px;padding-top:8px;border-top:1px solid #14284d}.agenda-entry{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #14284d}.agenda-entry-title{flex:1;text-align:left}.agenda-time{min-width:52px;color:var(--ac);font-variant-numeric:tabular-nums}.agenda-link{width:100%;background:transparent;border-left:0;border-right:0;border-bottom:0;color:var(--tx);font:inherit;cursor:pointer}.note-item{padding:8px}.note-delete-check{width:20px!important;min-width:20px;min-height:20px!important;margin:0!important;flex:0 0 20px}.note-open{display:flex;align-items:center;gap:12px;flex:1;min-width:0;background:none;border:0;color:inherit;text-align:left;font:inherit;cursor:pointer;padding:0}
 .note-check input{width:20px;min-height:20px;margin:0;flex:0 0 20px}
 </style>
 </head>
@@ -95,10 +96,14 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:8px 0 0}
 var TZ='America/Sao_Paulo';
 var CATS={'Pessoal':'#3aa0ff','Música':'#b366ff','Fé':'#7c6cff','Estudos':'#22d3ee','Futebol':'#22c55e','Finanças':'#facc15','Empreendedorismo':'#fb923c','Objetivos':'#86efac','Diário':'#f472b6'};
 var DIA=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='',classifyChoice='',classifyReview=false,classifyMsg='',classifyBusy=false,relatedSelection=[],relatedReview=false,relatedMsg='',relatedBusy=false,suggestedRelated=[],suggestBusy=false,noteTitles={};
+var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],agendaItems=[],deleteSelection=[],deleteReview=false,deleteBusy=false,agendaMsg='',mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='',classifyChoice='',classifyReview=false,classifyMsg='',classifyBusy=false,relatedSelection=[],relatedReview=false,relatedMsg='',relatedBusy=false,suggestedRelated=[],suggestBusy=false,noteTitles={};
 
-function load(){try{var r=localStorage.getItem('cj_tasks');tasks=r?JSON.parse(r):[]}catch(e){tasks=mem||[]}}
-function save(){try{localStorage.setItem('cj_tasks',JSON.stringify(tasks))}catch(e){mem=tasks}}
+function load(){try{var r=localStorage.getItem('cj_tasks');tasks=r?JSON.parse(r):[];var a=localStorage.getItem('cj_agenda');agendaItems=a?JSON.parse(a):[]}catch(e){tasks=mem||[];agendaItems=[]}}
+function save(){try{localStorage.setItem('cj_tasks',JSON.stringify(tasks));localStorage.setItem('cj_agenda',JSON.stringify(agendaItems))}catch(e){mem=tasks}}
+function plusDays(iso,n){var d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoOf(d)}
+function agendaForDate(iso){return agendaItems.filter(function(x){return x.date===iso}).sort(function(a,b){return (a.time||'99:99').localeCompare(b.time||'99:99')})}
+function taskForDate(iso){return tasks.filter(function(t){return t.due===iso&&!t.done})}
+function defaultEventDate(text){var v=String(text||'').toLowerCase(),c=clock();if(/\bdepois de amanh[aã]\b/.test(v))return plusDays(c.iso,2);if(/\bamanh[aã]\b/.test(v))return plusDays(c.iso,1);if(/\bhoje\b/.test(v))return c.iso;return ''}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function fmt(o,d){return new Intl.DateTimeFormat('pt-BR',Object.assign({timeZone:TZ},o)).format(d)}
 function isoOf(d){return new Intl.DateTimeFormat('sv-SE',{timeZone:TZ}).format(d)}
@@ -136,8 +141,11 @@ function vInicio(c){
  +'<div class="card"><h2>Hoje · '+DIA[c.wd]+'</h2><ul>'+evHTML(c.wd,true,c.min)+'</ul></div>'
  +'<div class="card"><h2>Amanhã · '+DIA[c.twd]+'</h2><ul>'+evHTML(c.twd,false,0)+'</ul>'+av+'</div>'}
 
-function vAgenda(c){var h='<h1>Agenda</h1><p class="sub">Rotina fixa. Só você altera estes compromissos.</p>';
- for(var i=0;i<7;i++){var w=(c.wd+i)%7;h+='<div class="card"><h2>'+DIA[w]+(i==0?' · hoje':'')+'</h2><ul>'+evHTML(w,false,0)+'</ul>'+((w==2||w==5)?'<div class="mut">Sem outros compromissos fixos.</div>':'')+'</div>'}
+function vAgenda(c){var h='<h1>Agenda</h1><p class="sub">Rotina fixa, tarefas com prazo e compromissos registrados nas suas notas.</p>';
+ for(var i=0;i<14;i++){var w=(c.wd+i)%7,iso=plusDays(c.iso,i),items=agendaForDate(iso),dueTasks=taskForDate(iso);h+='<div class="card"><h2>'+DIA[w]+' · '+iso.split('-').reverse().join('/')+(i==0?' · hoje':i==1?' · amanhã':'')+'</h2><ul>'+evHTML(w,i==0,c.min)+'</ul>';
+ if(dueTasks.length){h+='<div class="agenda-group"><div class="mut">Tarefas</div>';dueTasks.forEach(function(t){h+='<div class="agenda-entry"><span class="agenda-time">•</span><span class="agenda-entry-title">'+esc(t.title)+'</span><span class="tag impl">'+esc(t.cat)+'</span></div>'});h+='</div>'}
+ if(items.length){h+='<div class="agenda-group"><div class="mut">Compromissos das notas</div>';items.forEach(function(x){h+='<button class="agenda-entry agenda-link" data-a="openAgendaNote" data-p="'+esc(x.path)+'"><span class="agenda-time">'+esc(x.time||'•')+'</span><span class="agenda-entry-title">'+esc(x.title)+'</span><span class="note-arrow">›</span></button>'});h+='</div>'}
+ if(!fixed(w).length&&!dueTasks.length&&!items.length)h+='<div class="mut">Nenhum compromisso ou tarefa com prazo.</div>';h+='</div>'}
  return h}
 
 function vTarefas(c){var segs=[['atrasadas','Atrasadas'],['hoje','Hoje'],['concluidas','Concluídas'],['todas','Todas']];
@@ -288,12 +296,15 @@ function saveRelated(){
   }).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(){noteView.text=updated;relatedSelection=[];relatedReview=false;relatedMsg='Conexões salvas no cofre. Os links Obsidian foram adicionados.'});
  }).catch(function(e){relatedMsg='Não foi possível conectar as notas: '+fail(e)}).then(function(){relatedBusy=false;render()});
 }
-function saveNote(){var text=draft.trim();if(!text)return;var d=new Date(),iso=isoOf(d),hms=fmt({hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'},d).split(':'),path='Caixa de Entrada/'+iso+'-'+hms.join('')+'.md';
- var body='---\ncriado: '+iso+'T'+hms.join(':')+'-03:00\norigem: app CENTRAL JARVIS\nstatus: não classificado\n---\n\n'+text+'\n';
+function detectCommitment(text){var v=String(text||'').toLowerCase(),date=defaultEventDate(v);if(!date)return null;var action=/\b(sair|sa[ií]r|ir|visitar|encontrar|encontro|consulta|reuni[aã]o|compromisso|dentista|m[eé]dico|m[eé]dica|aula|viagem|anivers[aá]rio|buscar|levar|almo[cç]ar|jantar|passear|participar)\b/.test(v);if(!action)return null;var title=String(text).replace(/\b(depois de amanh[aã]|amanh[aã]|hoje)\b/ig,'').replace(/\s+/g,' ').replace(/[,.!?;: ]+$/,'').trim();return {date:date,title:title||'Compromisso'};}
+function saveNote(){var text=draft.trim();if(!text)return;var detected=detectCommitment(text);var d=new Date(),iso=isoOf(d),hms=fmt({hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'},d).split(':'),path='Caixa de Entrada/'+iso+'-'+hms.join('')+'.md';
+ var body='---\ncriado: '+iso+'T'+hms.join(':')+'-03:00\norigem: app CENTRAL JARVIS\nstatus: não classificado'+(detected?'\ncategoria: \"Compromisso\"':'')+'\n---\n\n'+text+'\n';
  wmsg='Gravando…';render();
  return fetch('https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+path.split('/').map(encodeURIComponent).join('/'),{method:'PUT',headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify({message:'Caixa de Entrada: nova nota (app)',content:b64(body),branch:'main'})}).then(function(r){
-  if(r.ok){draft='';review=false;wmsg='Nota gravada em '+path+'.';notes=null;return fetchNotes()}
+  if(r.ok){if(detected){agendaItems.push({id:String(Date.now()),title:detected.title,date:detected.date,time:'',path:path});save()}draft='';review=false;wmsg='Nota gravada em '+path+'.'+(detected?' Compromisso identificado e adicionado à Agenda.':'');notes=null;return fetchNotes()}
   review=false;wmsg=(r.status==403||r.status==404)?'Sem permissão de escrita. Gere um token com “Contents: Read and write” e reconecte. Seu texto foi mantido.':r.status==401?'Token inválido ou expirado. Seu texto foi mantido.':r.status==422?'Já existe uma nota com esse nome. Tente novamente. Seu texto foi mantido.':'Erro '+r.status+' ao gravar. Seu texto foi mantido.'}).catch(function(e){review=false;wmsg=fail(e)+' Seu texto foi mantido.'}).then(render)}
+function addNoteEvent(){if(!noteView)return;var title=(document.getElementById('agendaTitle')||{}).value||noteTitle(noteView.path),date=(document.getElementById('agendaDate')||{}).value,time=(document.getElementById('agendaTime')||{}).value;if(!title.trim()||!date){agendaMsg='Informe o nome e a data do compromisso.';return}agendaItems=agendaItems.filter(function(x){return !(x.path===noteView.path&&x.title===title.trim()&&x.date===date)});agendaItems.push({id:String(Date.now()),title:title.trim(),date:date,time:time,path:noteView.path});save();agendaMsg='Compromisso adicionado à Agenda e vinculado a esta nota.';}
+function deleteSelectedNotes(){if(!cfg.token||!deleteSelection.length||deleteBusy)return;deleteBusy=true;render();var paths=deleteSelection.slice(),i=0;function next(){if(i>=paths.length){deleteBusy=false;deleteSelection=[];deleteReview=false;noteTitles={};return fetchNotes()}var path=paths[i++],url='/contents/'+path.split('/').map(encodeURIComponent).join('/')+'?ref=main';return gh(url,false).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){return fetch('https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+path.split('/').map(encodeURIComponent).join('/'),{method:'DELETE',headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify({message:'Excluir nota: '+path,sha:j.sha,branch:'main'})})}).then(function(r){if(!r.ok)throw httpErr(r);return next()})}return next().catch(function(e){deleteBusy=false;deleteReview=false;vmsg='Falha ao excluir: '+fail(e)+'. Algumas notas anteriores podem já ter sido excluídas; atualize a lista para conferir.';render()})}
 function vCofre(){var h='<h1>Cofre</h1><p class="sub">Notas do repositório privado e Caixa de Entrada.</p>';
  if(!cfg.token)return h+'<div class="card"><h2>Conectar</h2><input id="co" value="'+esc(cfg.owner)+'" placeholder="Usuário do GitHub" autocapitalize="none" autocorrect="off"><input id="cr" value="'+esc(cfg.repo)+'" placeholder="Repositório" autocapitalize="none" autocorrect="off"><input id="ct" name="chave-jarvis" type="text" placeholder="Token (cole aqui)" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><button class="btn" data-a="conn">Conectar</button><p class="mut">O token fica salvo apenas neste aparelho. Use um token restrito a este repositório. Para gravar notas, ele precisa da permissão Contents: Read and write.</p></div>';
  if(noteView){
@@ -309,6 +320,8 @@ function vCofre(){var h='<h1>Cofre</h1><p class="sub">Notas do repositório priv
    if(classifyMsg)h+='<div class="aviso">'+esc(classifyMsg)+'</div>';
   }
   if(noteView.text!=='Carregando…'){
+   var defaultDate=defaultEventDate(noteView.text),defaultTitle=noteTitle(noteView.path);
+   h+='<div class="note-section"><h2>Adicionar à agenda</h2><p class="mut">Use para compromissos mencionados nesta nota. O evento ficará ligado à nota original.</p><input id="agendaTitle" value="'+esc(defaultTitle)+'" placeholder="Nome do compromisso"><input id="agendaDate" type="date" value="'+defaultDate+'"><input id="agendaTime" type="time" aria-label="Horário (opcional)"><button class="btn" data-a="addNoteEvent">Salvar compromisso na agenda</button>'+(agendaMsg?'<div class="aviso">'+esc(agendaMsg)+'</div>':'')+'</div>';
    var relatedOptions=(notes||[]).filter(function(n){return n!==noteView.path});
    h+='<div class="card"><h2>Notas relacionadas</h2><p class="mut">O JARVIS pode comparar o conteúdo das notas e sugerir relações. A análise é local, por palavras-chave; nada é gravado sem sua confirmação.</p>';
    h+='<button class="btn alt" data-a="analyzeRelated" '+(suggestBusy?'disabled':'')+'>'+(suggestBusy?'Analisando…':'Analisar notas e sugerir relações')+'</button>';
@@ -334,7 +347,7 @@ function vCofre(){var h='<h1>Cofre</h1><p class="sub">Notas do repositório priv
  h+='<div class="card"><h2>Caixa de Entrada</h2>'+(review?'<div class="mut">Confirme o conteúdo que será gravado como nova nota no repositório:</div><pre>'+esc(draft)+'</pre><div class="two" style="margin-top:12px"><button class="btn" data-a="save">Confirmar e gravar</button><button class="btn alt" data-a="cancel">Voltar</button></div>':'<textarea id="nn" placeholder="Escreva uma ideia, um fato ou um registro…" rows="4">'+esc(draft)+'</textarea><button class="btn" data-a="rev">Revisar e gravar</button>')+(wmsg?'<div class="aviso">'+esc(wmsg)+'</div>':'')+'</div>';
  if(loading)h+='<div class="mut">Carregando…</div>';
  if(vmsg)h+='<div class="aviso">'+esc(vmsg)+'</div>';
- if(notes)h+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px"><h2 style="margin:0">Suas notas</h2><span class="tag impl">'+notes.length+'</span></div>'+(notes.length?'<div class="note-list">'+notes.map(function(n){return '<button class="note-item" data-a="note" data-p="'+esc(n)+'"><span class="note-icon">▤</span><span class="note-info"><b class="note-title">'+esc(noteTitle(n))+'</b><small class="note-sub">'+esc(noteFolder(n))+'</small></span><span class="note-arrow">›</span></button>'}).join('')+'</div>':'<div class="mut">Nenhuma nota encontrada.</div>')+'</div>';
+ if(notes)h+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px"><h2 style="margin:0">Suas notas</h2><span class="tag impl">'+notes.length+'</span></div>'+(notes.length?'<div class="note-list">'+notes.map(function(n){return '<div class="note-item"><input class="note-delete-check" type="checkbox" data-delete-select="1" data-p="'+esc(n)+'" '+(deleteSelection.indexOf(n)>=0?'checked':'')+' aria-label="Selecionar para excluir"><button class="note-open" data-a="note" data-p="'+esc(n)+'"><span class="note-icon">▤</span><span class="note-info"><b class="note-title">'+esc(noteTitle(n))+'</b><small class="note-sub">'+esc(noteFolder(n))+'</small></span><span class="note-arrow">›</span></button></div>'}).join('')+'</div>':'<div class="mut">Nenhuma nota encontrada.</div>')+(deleteReview?'<div class="aviso">Confirme a exclusão permanente de '+deleteSelection.length+' nota(s) do GitHub. Essa ação não pode ser desfeita.</div><div class="two"><button class="btn" data-a="deleteNotesConfirm" '+(deleteBusy?'disabled':'')+'>Excluir definitivamente</button><button class="btn alt" data-a="deleteNotesCancel">Cancelar</button></div>':deleteSelection.length?'<button class="btn alt" data-a="deleteNotesReview">Excluir selecionadas ('+deleteSelection.length+')</button>':'')+'</div>';
  return h}
 function render(){var c=clock(),h=tab=='inicio'?vInicio(c):tab=='agenda'?vAgenda(c):tab=='tarefas'?vTarefas(c):tab=='cerebro'?vCerebro(c):tab=='cofre'?vCofre():vProjeto();
  document.getElementById('app').innerHTML=h;
@@ -351,6 +364,11 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-a]'
  else if(a=='del'){if(delId===id){tasks=tasks.filter(function(t){return t.id!=id});delId=null;save()}else delId=id}
  else if(a=='conn'){var t=document.getElementById('ct').value.trim();if(!t)return;cfg={owner:document.getElementById('co').value.trim(),repo:document.getElementById('cr').value.trim(),token:t};saveCfg();notes=null;fetchNotes()}
  else if(a=='sync'){fetchNotes()}
+ else if(a=='addNoteEvent'){addNoteEvent()}
+ else if(a=='openAgendaNote'){tab='cofre';openN(el.getAttribute('data-p'))}
+ else if(a=='deleteNotesReview'){deleteReview=true}
+ else if(a=='deleteNotesCancel'){deleteReview=false}
+ else if(a=='deleteNotesConfirm'){deleteSelectedNotes()}
  else if(a=='note'){openN(el.getAttribute('data-p'))}
  else if(a=='classifyReview'){
   var categorySelect=document.getElementById('classifyCat');
@@ -374,6 +392,9 @@ try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')}ca
 document.addEventListener('input',function(e){if(e.target&&e.target.id=='nn')draft=e.target.value});
 document.addEventListener('change',function(e){
  if(e.target&&e.target.id=='classifyCat'){classifyChoice=e.target.value;classifyMsg=''}
+ if(e.target&&e.target.getAttribute('data-delete-select')=='1'){
+  var dp=e.target.getAttribute('data-p');if(e.target.checked){if(deleteSelection.indexOf(dp)<0)deleteSelection.push(dp)}else deleteSelection=deleteSelection.filter(function(x){return x!==dp});render();
+ }
  if(e.target&&e.target.getAttribute('data-rel-select')=='1'){
   var path=e.target.getAttribute('data-p');
   if(e.target.checked){if(relatedSelection.indexOf(path)<0)relatedSelection.push(path)}
