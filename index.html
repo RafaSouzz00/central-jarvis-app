@@ -141,7 +141,7 @@ function vCerebro(c){var cnt={},total=0;Object.keys(CATS).forEach(function(k){cn
  +(selCat?'<div class="card"><h2>'+selCat+'</h2>'+(sel.length?sel.map(function(t){return taskHTML(t,c)}).join(''):'<div class="mut">Sem registros nesta categoria.</div>')+'</div>':'')}
 
 function vProjeto(){var L=[['Dashboard e navegação','impl'],['Rotina fixa e agenda semanal','impl'],['Tarefas: atrasadas, hoje, concluídas, todas','impl'],['Cérebro com dados reais das tarefas','impl'],
- ['Leitura das notas do cofre (GitHub)','impl'],['Caixa de Entrada: gravar nota no cofre','impl'],['Classificação da Caixa de Entrada','plan'],['Chat com IA','plan'],['Diário às 22h','plan'],['Notificações push','plan'],['Objetivos e relatórios','plan'],['Clima de Belo Horizonte','plan']];
+ ['Leitura das notas do cofre (GitHub)','impl'],['Caixa de Entrada: gravar nota no cofre','impl'],['Classificação da Caixa de Entrada','impl'],['Chat com IA','plan'],['Diário às 22h','plan'],['Notificações push','plan'],['Objetivos e relatórios','plan'],['Clima de Belo Horizonte','plan']];
  return '<h1>Projeto</h1><p class="sub">Estado real de cada funcionalidade. Nada consta como testado: os testes no seu iPhone ainda não foram feitos.</p>'
  +'<div class="card">'+L.map(function(x){return '<div class="st"><span>'+x[0]+'</span><span class="tag '+x[1]+'">'+(x[1]=='impl'?'Implementado':'Planejado')+'</span></div>'}).join('')+'</div>'
  +'<div class="card mut">As tarefas e o token ficam apenas neste aparelho. As tarefas ainda não têm sincronização nem backup.</div>'}
@@ -235,7 +235,15 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-a]'
  else if(a=='conn'){var t=document.getElementById('ct').value.trim();if(!t)return;cfg={owner:document.getElementById('co').value.trim(),repo:document.getElementById('cr').value.trim(),token:t};saveCfg();notes=null;fetchNotes()}
  else if(a=='sync'){fetchNotes()}
  else if(a=='note'){openN(el.getAttribute('data-p'))}
- else if(a=='back'){noteView=null}
+ else if(a=='classifyReview'){
+  var categorySelect=document.getElementById('classifyCat');
+  classifyChoice=categorySelect?categorySelect.value:'';
+  if(!classifyChoice){classifyMsg='Selecione uma categoria antes de continuar.';classifyReview=false}
+  else{classifyMsg='';classifyReview=true}
+ }
+ else if(a=='classifyConfirm'){classifyNote()}
+ else if(a=='classifyCancel'){classifyReview=false;classifyMsg=''}
+ else if(a=='back'){noteView=null;classifyReview=false;classifyMsg=''}
  else if(a=='disc'){cfg.token='';notes=null;noteView=null;vmsg='';wmsg='';classifyChoice='';classifyReview=false;classifyMsg='';saveCfg()}
  else if(a=='rev'){var ta=document.getElementById('nn');if(ta)draft=ta.value;if(!draft.trim())return;review=true;wmsg=''}
  else if(a=='cancel'){review=false}
@@ -243,6 +251,7 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-a]'
  render()});
 try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')}catch(e){}
 document.addEventListener('input',function(e){if(e.target&&e.target.id=='nn')draft=e.target.value});
+document.addEventListener('change',function(e){if(e.target&&e.target.id=='classifyCat'){classifyChoice=e.target.value;classifyMsg=''}});
 load();loadCfg();render();setInterval(function(){if(tab=='inicio'&&!document.activeElement.matches('input,select'))render()},30000);
 </script>
 </body>
