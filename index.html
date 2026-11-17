@@ -52,12 +52,53 @@ textarea{flex:1;min-width:0;max-height:140px;min-height:42px;resize:none;border:
 .graphWrap{background:radial-gradient(ellipse at 50% 48%,#183b4d 0%,#0c2034 48%,#091727 100%);border:1px solid #2b4964}.brainGraph{filter:drop-shadow(0 8px 18px #02081280)}.graphLine{stroke:#80b9d9;stroke-width:1.7;opacity:.48}.graphLine.hot{stroke:#ffe0a6;stroke-width:2.3;opacity:.78}.graphNode{stroke:#e4f4ff;stroke-width:1.6;filter:drop-shadow(0 0 8px currentColor)}.graphNode.music{fill:#27a9c8;stroke:#9cf2ff;color:#27a9c8}.graphNode.goals{fill:#a16ad8;stroke:#e0c1ff;color:#a16ad8}.graphNode.faith{fill:#d39b45;stroke:#ffe0a1;color:#d39b45}.graphNode.studies{fill:#4389d8;stroke:#b7d9ff;color:#4389d8}.graphNode.football{fill:#42a878;stroke:#b6f2ce;color:#42a878}.graphNode.finance{fill:#b8a34c;stroke:#f8e9a0;color:#b8a34c}.graphNode.business{fill:#d17c57;stroke:#ffd0b7;color:#d17c57}.graphNode.personal{fill:#bd718f;stroke:#ffd0e0;color:#bd718f}.graphNode.diary{fill:#7c86cf;stroke:#cbd0ff;color:#7c86cf}.graphNode.other{fill:#71869b;stroke:#d1e0ef;color:#71869b}.graphNode.core{fill:#e9a85c;stroke:#fff0ca;stroke-width:2.4;color:#e9a85c}.graphLabel{fill:#f4f8ff;font-size:11px;font-weight:650;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:#091727;stroke-width:2px;stroke-linejoin:round}.graphCount{fill:#d4e7f7;font-size:9px;text-anchor:middle;paint-order:stroke;stroke:#091727;stroke-width:2px}.graphLegend{font-size:11px;color:var(--muted);margin-top:10px}.brainCoreLabel{fill:#fff4df;font-size:12px;font-weight:700;text-anchor:middle}.brainPulse{fill:none;stroke:#ffc477;stroke-width:1;opacity:.28}
 .statLine{display:flex;gap:8px;flex-wrap:wrap}.statPill{border:1px solid #284864;border-radius:20px;padding:5px 9px;font-size:11px;color:#c7def3}
 
+
+/* Navegação inferior */
+.app{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+main{padding-bottom:8px}
+.bottomNav{height:58px;flex:0 0 58px;display:flex;align-items:center;justify-content:space-around;gap:3px;border-top:1px solid #ffffff17;background:linear-gradient(180deg,#0b1726ee,#081321f8);padding:4px 2px calc(4px + env(safe-area-inset-bottom));margin:0 -14px;z-index:4}
+.navTab{min-width:0;flex:1;height:48px;border:0;border-radius:12px;background:transparent;color:#8197af;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9px;letter-spacing:.01em}
+.navTab .navGlyph{font-size:17px;line-height:1.1}
+.navTab.active{color:#8bd2ff;background:linear-gradient(180deg,#16365099,#15304955);box-shadow:inset 0 0 0 1px #4b91b744}
+.navTab.active .navGlyph{filter:drop-shadow(0 0 6px #66bdff88)}
+@media(min-width:650px){.bottomNav{margin:0 -22px}}
+/* Mapa de conhecimento em tela ampla */
+#moduleScreen.brainScreen{padding:0;overflow:hidden;position:relative;background:#03060d}
+.brainCanvas{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#101d35 0%,#080f1e 42%,#03060d 100%)}
+.brainCanvas:before{content:"";position:absolute;inset:0;background-image:radial-gradient(1px 1px at 7% 13%,#fff 98%,transparent),radial-gradient(1px 1px at 23% 61%,#d9e8ff 98%,transparent),radial-gradient(1.5px 1.5px at 46% 22%,#fff 98%,transparent),radial-gradient(1px 1px at 68% 74%,#fff 98%,transparent),radial-gradient(1px 1px at 87% 31%,#dce9ff 98%,transparent),radial-gradient(1px 1px at 34% 88%,#fff 98%,transparent),radial-gradient(1px 1px at 93% 91%,#fff 98%,transparent),radial-gradient(1px 1px at 12% 82%,#b9d8ff 98%,transparent);background-size:173px 151px,211px 193px,257px 227px,191px 181px,233px 211px,271px 239px,197px 223px,241px 199px;opacity:.8;pointer-events:none}
+.brainCanvas:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,#02050bbd 100%);pointer-events:none}
+.brainSvg{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.brainEdge{stroke:#b7d9ff;stroke-width:1.1;opacity:.27}
+.brainEdge.strong{stroke:#f0d8ff;opacity:.58;stroke-width:1.8}
+.brainStar{fill:#eaf4ff;opacity:.65}
+.brainDot{stroke:#ffffffa8;stroke-width:1.2;cursor:pointer;filter:drop-shadow(0 0 7px currentColor);transition:r .2s,opacity .2s}
+.brainDot:focus{stroke:#fff;stroke-width:3;outline:none}
+.brainDot.personal{fill:#3298f4;color:#3298f4}
+.brainDot.faith{fill:#9b68df;color:#9b68df}
+.brainDot.music{fill:#22c6c5;color:#22c6c5}
+.brainDot.studies{fill:#527fe8;color:#527fe8}
+.brainDot.football{fill:#48bd82;color:#48bd82}
+.brainDot.finance{fill:#d6b64d;color:#d6b64d}
+.brainDot.business{fill:#e18a5c;color:#e18a5c}
+.brainDot.goals{fill:#e17bb6;color:#e17bb6}
+.brainDot.diary{fill:#8d9ce9;color:#8d9ce9}
+.brainDot.other{fill:#a3b4c7;color:#a3b4c7}
+.brainHint{position:absolute;top:12px;left:14px;right:14px;z-index:2;pointer-events:none;text-align:center;color:#a9bdd3;font-size:10px;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 1px 8px #000}
+.brainDetail{position:relative;z-index:2;min-height:100%;overflow:auto;padding:18px 4px 20px;background:radial-gradient(ellipse at 50% 0%,#152844,#081321 65%)}
+.brainDetailHead{display:flex;align-items:center;gap:10px;margin:0 0 16px}
+.brainBack{border:1px solid #36516d;background:#13283e;color:#eaf4ff;border-radius:10px;padding:8px 12px;font-size:12px}
+.brainColor{width:12px;height:12px;border-radius:50%;box-shadow:0 0 12px currentColor}
+.brainDetailTitle{font-size:18px;font-weight:650}
+.brainDetailSub{font-size:11px;color:var(--muted);margin-top:2px}
+.brainInfoCard{background:#102239d9;border:1px solid #2b4561;border-radius:14px;padding:13px;margin:0 0 10px}
+.brainInfoCard b{font-size:13px}.brainInfoCard p{font-size:12px;color:#c3d2e3;margin:6px 0 0;white-space:pre-wrap}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
- <div class="brand"><button class="menuBtn" id="menuButton" type="button" aria-label="Abrir abas">☰</button><div class="orb">J</div><div><strong>CENTRAL JARVIS</strong><small>ASSISTENTE PESSOAL</small></div></div>
+ <div class="brand"><div class="orb">J</div><div><strong>CENTRAL JARVIS</strong><small>ASSISTENTE PESSOAL</small></div></div>
  <button class="sync" id="syncButton" type="button" title="Sincronização com GitHub e Obsidian"><i class="lamp"></i><span id="syncLabel">GitHub</span></button>
 </header>
 <main>
@@ -71,8 +112,8 @@ textarea{flex:1;min-width:0;max-height:140px;min-height:42px;resize:none;border:
  </div>
  <section id="moduleScreen" class="screen"></section>
 </main>
+<nav class="bottomNav" id="bottomNav" aria-label="Navegação principal"></nav>
 </div>
-<div class="overlay menuOverlay" id="menuOverlay"><div class="menuPanel"><div class="menuHead"><b>Central JARVIS</b><button id="closeMenu" aria-label="Fechar">×</button></div><div id="menuItems"></div></div></div>
 <div class="overlay" id="connectOverlay" role="dialog" aria-modal="true" aria-labelledby="connectTitle">
  <div class="dialog">
   <h2 id="connectTitle">Conectar ao GitHub</h2>
@@ -132,51 +173,55 @@ async function syncClick(){if(!connected){openConnect();return}if(busy)return;se
 
 let currentPage='chat';
 const PAGE_ITEMS=[['chat','◉','Chat'],['projetos','◇','Projetos'],['agenda','▦','Agenda'],['tarefas','✓','Tarefas'],['cerebro','✧','Cérebro'],['diario','▤','Diário']];
-function moduleNav(){$('menuItems').innerHTML=PAGE_ITEMS.map(([id,ic,name])=>'<button class="menuItem '+(currentPage===id?'active':'')+'" data-page="'+id+'"><span class="menuIcon">'+ic+'</span>'+name+'</button>').join('')}
-function openMenu(){moduleNav();$('menuOverlay').classList.add('show')}
-function closeMenu(){$('menuOverlay').classList.remove('show')}
-function setPage(page){currentPage=page;closeMenu();$('chatView').style.display=page==='chat'?'flex':'none';$('moduleScreen').classList.toggle('active',page!=='chat');if(page!=='chat')renderModule(page);moduleNav()}
+function moduleNav(){$('bottomNav').innerHTML=PAGE_ITEMS.map(([id,ic,name])=>'<button type="button" class="navTab '+(currentPage===id?'active':'')+'" data-page="'+id+'"><span class="navGlyph">'+ic+'</span><span>'+name+'</span></button>').join('')}
+function setPage(page){currentPage=page;$('chatView').style.display=page==='chat'?'flex':'none';$('moduleScreen').classList.toggle('active',page!=='chat');$('moduleScreen').classList.toggle('brainScreen',page==='cerebro');if(page!=='chat')renderModule(page);moduleNav()}
 function recordsFor(cat){return records.filter(r=>r.cat===cat||(r.themes||[]).includes(cat))}
 function recordCard(r,withDone=false){return '<div class="moduleRow"><b>'+esc(r.title)+'</b><div class="moduleMeta">'+esc(r.type)+' · '+esc((r.themes||[r.cat]).join(' + '))+(r.date?' · '+formatDate(r.date):'')+(r.time?' às '+esc(r.time):'')+'</div>'+(withDone?'<div class="moduleActions"><button class="moduleAction" data-record-done="'+esc(r.id)+'">'+(r.done?'Reabrir':'Concluir')+'</button><button class="moduleAction delete" data-record-delete="'+esc(r.id)+'" aria-label="Excluir tarefa">Excluir</button></div>':'')+'</div>'}
 function renderProjects(){let a=records.filter(r=>r.type==='Ideia'||r.cat==='Empreendedorismo'||r.cat==='Objetivos'||(r.themes||[]).includes('Objetivos'));return '<h2 class="pageTitle">Projetos</h2><p class="pageSub">Ideias, metas e iniciativas que você compartilha no chat.</p><div class="moduleCard"><div class="statLine"><span class="statPill">'+a.length+' registros relacionados</span><span class="statPill">'+a.filter(r=>r.type==='Ideia').length+' ideias</span></div>'+(a.length?a.map(r=>recordCard(r)).join(''):'<div class="moduleEmpty">Quando você compartilhar uma ideia ou meta no chat, ela aparecerá aqui.</div>')+'</div>'}
 function renderTasks(){let a=records.filter(r=>r.type==='Tarefa'||r.type==='Lembrete');return '<h2 class="pageTitle">Tarefas</h2><p class="pageSub">Ações e lembretes organizados a partir das suas conversas.</p><div class="moduleCard"><div class="statLine"><span class="statPill">'+a.filter(r=>!r.done).length+' em aberto</span><span class="statPill">'+a.filter(r=>r.done).length+' concluídas</span></div>'+(a.length?a.map(r=>recordCard(r,true)).join(''):'<div class="moduleEmpty">Nenhuma tarefa registrada. Conte no chat o que precisa fazer.</div>')+'</div>'}
 function renderAgenda(){let out='<h2 class="pageTitle">Agenda</h2><p class="pageSub">Compromissos registrados e sua rotina fixa.</p>';for(let i=0;i<14;i++){let d=plusDays(dateNow(),i),w=new Date(d+'T12:00:00').getDay(),names=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'],fixed=[['14:00','Treino musical']];if(w===1||w===4)fixed.push(['19:30','Cursos']);if(w===3)fixed.push(['20:00','Célula Uma Nova História']);if(w===6)fixed.push(['08:00','Ajudar Dona Elza']);if(w===0)fixed.push(['09:30','Culto'],['17:00','Culto'],['19:30','Culto']);let ev=records.filter(r=>r.type==='Compromisso'&&r.date===d).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||''));out+='<div class="moduleCard"><h3>'+names[w]+' · '+formatDate(d)+(i===0?' · Hoje':i===1?' · Amanhã':'')+'</h3>'+fixed.map(x=>'<div class="moduleRow"><b>'+x[0]+' · '+x[1]+'</b><div class="moduleMeta">Rotina fixa</div></div>').join('')+ev.map(r=>recordCard(r)).join('')+(!fixed.length&&!ev.length?'<div class="moduleEmpty">Sem compromissos registrados.</div>':'')+'</div>'}return out}
 function renderDiary(){let a=records.filter(r=>r.type==='Registro pessoal').sort((x,y)=>(y.created||'').localeCompare(x.created||''));return '<h2 class="pageTitle">Diário</h2><p class="pageSub">Registros pessoais organizados por data.</p><div class="moduleCard">'+(a.length?a.map(r=>recordCard(r)).join(''):'<div class="moduleEmpty">Quando você compartilhar um registro pessoal no chat, ele aparecerá aqui.</div>')+'</div>'}
+const BRAIN_CATS=[
+ {cat:'Pessoal',key:'personal',color:'#3298f4',pos:[105,180]},
+ {cat:'Fé',key:'faith',color:'#9b68df',pos:[385,150]},
+ {cat:'Música',key:'music',color:'#22c6c5',pos:[260,335]},
+ {cat:'Estudos',key:'studies',color:'#527fe8',pos:[505,345]},
+ {cat:'Futebol',key:'football',color:'#48bd82',pos:[90,510]},
+ {cat:'Finanças',key:'finance',color:'#d6b64d',pos:[430,560]},
+ {cat:'Empreendedorismo',key:'business',color:'#e18a5c',pos:[250,665]},
+ {cat:'Objetivos',key:'goals',color:'#e17bb6',pos:[520,735]},
+ {cat:'Diário',key:'diary',color:'#8d9ce9',pos:[160,805]},
+ {cat:'Outros',key:'other',color:'#a3b4c7',pos:[500,920]}
+];
 function renderBrain(){
- let cats=[
-  {cat:'Música',key:'music',color:'#35c5df'},
-  {cat:'Objetivos',key:'goals',color:'#b78bea'},
-  {cat:'Fé',key:'faith',color:'#e8b45e'},
-  {cat:'Estudos',key:'studies',color:'#65a9ed'},
-  {cat:'Futebol',key:'football',color:'#62c993'},
-  {cat:'Finanças',key:'finance',color:'#d7c46a'},
-  {cat:'Empreendedorismo',key:'business',color:'#e89a75'},
-  {cat:'Pessoal',key:'personal',color:'#e28cac'},
-  {cat:'Diário',key:'diary',color:'#929ce8'},
-  {cat:'Outros',key:'other',color:'#a4b6c8'}
- ];
- let cx=300,cy=205,rx=210,ry=145,coords={};
- cats.forEach((n,i)=>{let angle=(-Math.PI/2)+(Math.PI*2*i/cats.length);coords[n.cat]=[cx+Math.cos(angle)*rx,cy+Math.sin(angle)*ry]});
- let counts={};cats.forEach(n=>counts[n.cat]=recordsFor(n.cat).length);
- let weights={};records.forEach(r=>{let themes=[...new Set(r.themes||[r.cat||'Outros'])];for(let i=0;i<themes.length;i++)for(let j=i+1;j<themes.length;j++){let key=[themes[i],themes[j]].sort().join('|');weights[key]=(weights[key]||0)+1}});
- let links=Object.entries(weights).filter(([k])=>{let p=k.split('|');return coords[p[0]]&&coords[p[1]]});
- let lines=links.map(([k,w])=>{let [a,b]=k.split('|'),p=coords[a],q=coords[b];return '<line class="graphLine '+(w>1?'hot':'')+'" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke-width="'+(1+Math.min(w,4)*.55)+'"/>'}).join('');
- let nodes=cats.map(n=>{let [x,y]=coords[n.cat],count=counts[n.cat],rad=17+Math.min(31,Math.sqrt(count)*8);return '<g><circle class="graphNode '+n.key+'" cx="'+x+'" cy="'+y+'" r="'+(rad+5)+'" opacity=".12"/><circle class="graphNode '+n.key+'" cx="'+x+'" cy="'+y+'" r="'+rad+'"/><text class="graphLabel" x="'+x+'" y="'+(y+3)+'">'+esc(n.cat)+'</text><text class="graphCount" x="'+x+'" y="'+(y+rad+13)+'">'+count+' registro(s)</text></g>'}).join('');
- let core='<ellipse class="brainPulse" cx="300" cy="205" rx="74" ry="52"/><ellipse class="brainPulse" cx="300" cy="205" rx="58" ry="40"/><path d="M300 171 C280 154 254 170 258 193 C239 205 250 235 274 236 C282 253 298 248 300 239 C302 248 318 253 326 236 C350 235 361 205 342 193 C346 170 320 154 300 171Z" fill="#e9a85c" fill-opacity=".18" stroke="#ffc477" stroke-width="1.8"/><path d="M300 174V238 M278 180C290 187 285 199 274 202 M322 180C310 187 315 199 326 202 M273 218C287 212 290 225 289 237 M327 218C313 212 310 225 311 237" fill="none" stroke="#ffdca7" stroke-width="1.5" opacity=".85"/><text class="brainCoreLabel" x="300" y="266">JARVIS</text>';
- return '<h2 class="pageTitle">Cérebro</h2><p class="pageSub">Mapa neural do conhecimento. Cada tema tem sua cor e cresce conforme acumula registros; conexões mostram assuntos que aparecem juntos.</p><div class="moduleCard"><div class="statLine"><span class="statPill">'+records.length+' registros analisados</span><span class="statPill">'+links.length+' conexões neurais</span></div><div class="graphWrap"><svg class="brainGraph" viewBox="0 0 600 410" role="img" aria-label="Mapa neural colorido de temas interligados">'+lines+core+nodes+'</svg></div><div class="graphLegend">O tamanho representa a quantidade de registros. As linhas representam relações entre temas; conexões mais fortes aparecem mais destacadas.</div></div><div class="moduleCard"><h3>Atividade por tema</h3>'+cats.map(n=>'<div class="moduleRow"><b style="color:'+n.color+'">● '+esc(n.cat)+'</b><div class="moduleMeta">'+counts[n.cat]+' registro(s)</div></div>').join('')+'</div><div class="moduleCard"><h3>Registros relacionados</h3>'+(records.length?records.slice().reverse().map(r=>recordCard(r)).join(''):'<div class="moduleEmpty">Ainda não há registros. Converse com o JARVIS para construir seu mapa de conhecimento.</div>')+'</div>';
+ let counts={};BRAIN_CATS.forEach(n=>counts[n.cat]=recordsFor(n.cat).length);
+ let edges={};records.forEach(r=>{let themes=[...new Set(r.themes||[r.cat||'Outros'])];for(let i=0;i<themes.length;i++)for(let j=i+1;j<themes.length;j++){let k=[themes[i],themes[j]].sort().join('|');edges[k]=(edges[k]||0)+1}});
+ let known=new Set(BRAIN_CATS.map(n=>n.cat));
+ let links=Object.entries(edges).filter(([k])=>k.split('|').every(x=>known.has(x)));
+ let line=links.map(([k,w])=>{let [a,b]=k.split('|'),p=BRAIN_CATS.find(x=>x.cat===a).pos,q=BRAIN_CATS.find(x=>x.cat===b).pos;return '<line class="brainEdge '+(w>1?'strong':'')+'" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'"/>'}).join('');
+ // Faint structural links make the knowledge field feel like a connected neural network even while empty.
+ let fallback=BRAIN_CATS.slice(0,-1).map((n,i)=>{let q=BRAIN_CATS[(i+3)%BRAIN_CATS.length];return '<line class="brainEdge" x1="'+n.pos[0]+'" y1="'+n.pos[1]+'" x2="'+q.pos[0]+'" y2="'+q.pos[1]+'" opacity=".12"/>'}).join('');
+ let stars='';for(let i=0;i<95;i++){let x=(i*97+31)%600,y=(i*173+47)%1000,rad=(i%7===0)?1.45:.65;stars+='<circle class="brainStar" cx="'+x+'" cy="'+y+'" r="'+rad+'" opacity="'+(.25+(i%5)*.13)+'"/>'}
+ let dots=BRAIN_CATS.map(n=>{let c=counts[n.cat],r=10+Math.min(40,Math.sqrt(c)*9);return '<circle class="brainDot '+n.key+'" data-brain-cat="'+esc(n.cat)+'" cx="'+n.pos[0]+'" cy="'+n.pos[1]+'" r="'+r+'" tabindex="0" role="button" aria-label="Abrir tema '+esc(n.cat)+', '+c+' registros"/>'}).join('');
+ return '<div class="brainCanvas"><div class="brainHint">Mapa de conhecimento · toque em uma esfera para explorar</div><svg class="brainSvg" viewBox="0 0 600 1000" preserveAspectRatio="xMidYMid slice" aria-label="Mapa neural de temas">'+stars+fallback+line+dots+'</svg></div>';
 }
+function renderBrainDetail(cat){
+ let n=BRAIN_CATS.find(x=>x.cat===cat);if(!n)return renderBrain();
+ let a=recordsFor(cat).slice().sort((x,y)=>(y.created||'').localeCompare(x.created||''));
+ let body=a.length?a.map(r=>'<article class="brainInfoCard"><b>'+esc(r.title||'Registro sem título')+'</b><p>'+esc(r.source||'')+'</p><div class="moduleMeta">'+esc(r.type||'Registro')+(r.date?' · '+formatDate(r.date):'')+(r.time?' · '+esc(r.time):'')+'</div></article>').join(''):'<div class="moduleEmpty">Ainda não há informações registradas neste tema. Quando você conversar sobre '+esc(cat)+', os registros aparecerão aqui.</div>';
+ return '<div class="brainDetail"><div class="brainDetailHead"><button class="brainBack" data-brain-back>← Mapa</button><span class="brainColor" style="background:'+n.color+';color:'+n.color+'"></span><div><div class="brainDetailTitle">'+esc(cat)+'</div><div class="brainDetailSub">'+a.length+' informação(ões) registradas</div></div></div>'+body+'</div>';
+}
+
 function renderModule(page){$('moduleScreen').innerHTML=page==='projetos'?renderProjects():page==='tarefas'?renderTasks():page==='agenda'?renderAgenda():page==='cerebro'?renderBrain():renderDiary()}
 
 function handleChoice(v){if(!pending)return;let p=pending;if(p.need==='date'){let d=inferDate(v);if(!d){addMessage('jarvis','Não identifiquei essa data. Escreva, por exemplo, 25/11, amanhã ou sexta-feira.');return}p.date=d;p.need='';if(!p.time){ask({...p,need:'time',question:'Qual é o horário? Se ainda não souber, diga “ainda não sei”.',choices:['Ainda não sei']});return}}else if(p.need==='time'){p.time=v==='Ainda não sei'?'':inferTime(v)||v;p.need=''}else if(p.choices){p.type=v;p.choices=null;if(v==='Compromisso'&&!p.date){ask({...p,need:'date',question:'Qual é a data desse compromisso?'});return}if(v==='Compromisso'&&!p.time){ask({...p,need:'time',question:'Qual é o horário? Se ainda não souber, diga “ainda não sei”.',choices:['Ainda não sei']});return}}pending=p;addMessage('jarvis','Confira o registro antes de salvar.',{preview:p})}
 $('sendButton').addEventListener('click',send);$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});$('chatInput').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,140)+'px'});
 function send(){let el=$('chatInput'),s=el.value.trim();if(!s)return;el.value='';el.style.height='auto';addMessage('user',s);if(pending){if(pending.need){handleChoice(s);return}if(pending.choices){let v=pending.choices.find(x=>x.toLowerCase()===s.toLowerCase());if(v){handleChoice(v);return}}}processMessage(s)}
-$('syncButton').addEventListener('click',syncClick);$('cancelConnect').addEventListener('click',()=>$('connectOverlay').classList.remove('show'));$('connectNow').addEventListener('click',connect);$('ghToken').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
+$('moduleScreen').addEventListener('keydown',e=>{let n=e.target.closest('[data-brain-cat]');if(n&&(e.key==='Enter'||e.key===' ')){e.preventDefault();$('moduleScreen').innerHTML=renderBrainDetail(n.dataset.brainCat)}});$('syncButton').addEventListener('click',syncClick);$('cancelConnect').addEventListener('click',()=>$('connectOverlay').classList.remove('show'));$('connectNow').addEventListener('click',connect);$('ghToken').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
 document.addEventListener('click',e=>{let choice=e.target.closest('[data-choice]');if(choice){addMessage('user',choice.dataset.choice);handleChoice(choice.dataset.choice);return}let a=e.target.closest('[data-action]');if(!a)return;let action=a.dataset.action;if(action==='confirm'&&pending){let p=pending;pending=null;saveRecord(p)}if(action==='cancel'){pending=null;addMessage('jarvis','Certo. Não salvei esse registro.')}if(action==='edit'&&pending){let s=pending.source;pending=null;addMessage('jarvis','Envie a mensagem corrigida. O registro anterior não foi salvo.');$('chatInput').value=s;$('chatInput').focus()}});
-$('menuButton').addEventListener('click',openMenu);$('closeMenu').addEventListener('click',closeMenu);
-$('menuOverlay').addEventListener('click',e=>{if(e.target===$('menuOverlay'))closeMenu()});
 async function deleteTask(id){let r=records.find(x=>x.id===id);if(!r)return;if(!window.confirm('Excluir esta tarefa?'))return;if(r.githubPath&&!token){showToast('Conecte o GitHub antes de excluir uma tarefa já sincronizada.');return}try{if(r.githubPath&&token){let path=r.githubPath.split('/').map(encodeURIComponent).join('/');let get=await api('/contents/'+path+'?ref='+encodeURIComponent(GH.branch));if(get.ok){let meta=await get.json();let del=await api('/contents/'+path,{method:'DELETE',body:JSON.stringify({message:'JARVIS: excluir tarefa - '+r.title.slice(0,60),sha:meta.sha,branch:GH.branch})});if(!del.ok)throw new Error('O GitHub não confirmou a exclusão.')}else if(get.status!==404){throw new Error('Não foi possível localizar a tarefa no GitHub.')}}records=records.filter(x=>x.id!==id);persist();renderModule('tarefas');showToast('Tarefa excluída.')}catch(err){showToast('Não foi possível excluir: '+err.message)}}
-document.addEventListener('click',e=>{let pg=e.target.closest('[data-page]');if(pg){setPage(pg.dataset.page);return}let del=e.target.closest('[data-record-delete]');if(del){deleteTask(del.dataset.recordDelete);return}let done=e.target.closest('[data-record-done]');if(done){let r=records.find(x=>x.id===done.dataset.recordDone);if(r){r.done=!r.done;persist();renderModule('tarefas')}}});
-load();renderMessages();setSyncState('','GitHub');
+document.addEventListener('click',e=>{let node=e.target.closest('[data-brain-cat]');if(node){$('moduleScreen').innerHTML=renderBrainDetail(node.dataset.brainCat);return}let back=e.target.closest('[data-brain-back]');if(back){$('moduleScreen').innerHTML=renderBrain();return}let pg=e.target.closest('[data-page]');if(pg){setPage(pg.dataset.page);return}let del=e.target.closest('[data-record-delete]');if(del){deleteTask(del.dataset.recordDelete);return}let done=e.target.closest('[data-record-done]');if(done){let r=records.find(x=>x.id===done.dataset.recordDone);if(r){r.done=!r.done;persist();renderModule('tarefas')}}});
+load();renderMessages();moduleNav();setSyncState('','GitHub');
 })();
 </script>
 </body>
