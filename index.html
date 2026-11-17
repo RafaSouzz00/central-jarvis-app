@@ -75,7 +75,7 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:8px 0 0}
 var TZ='America/Sao_Paulo';
 var CATS={'Pessoal':'#3aa0ff','Música':'#b366ff','Fé':'#7c6cff','Estudos':'#22d3ee','Futebol':'#22c55e','Finanças':'#facc15','Empreendedorismo':'#fb923c','Objetivos':'#86efac','Diário':'#f472b6'};
 var DIA=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='';
+var tab='inicio',view='hoje',selCat=null,delId=null,tasks=[],mem=null,cfg={owner:'rafasouzz00',repo:'central-jarvis-vault',token:''},notes=null,noteView=null,vmsg='',loading=false,draft='',review=false,wmsg='',classifyChoice='',classifyReview=false,classifyMsg='',classifyBusy=false;
 
 function load(){try{var r=localStorage.getItem('cj_tasks');tasks=r?JSON.parse(r):[]}catch(e){tasks=mem||[]}}
 function save(){try{localStorage.setItem('cj_tasks',JSON.stringify(tasks))}catch(e){mem=tasks}}
@@ -159,9 +159,37 @@ function fetchNotes(){vmsg='';loading=true;render();
  return gh('/git/trees/main?recursive=1').then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){
   notes=j.tree.filter(function(x){return x.type=='blob'&&/\.md$/i.test(x.path)&&x.path.charAt(0)!='.'}).map(function(x){return x.path}).sort();
   vmsg=j.truncated?'Lista parcial: o repositório é grande demais para esta consulta.':''}).catch(function(e){notes=null;vmsg=fail(e);if(e&&e.status==404)return diag()}).then(function(){loading=false;render()})}
-function openN(p){noteView={path:p,text:'Carregando…'};render();
+function openN(p){noteView={path:p,text:'Carregando…'};classifyChoice='';classifyReview=false;classifyMsg='';render();
  return gh('/contents/'+p.split('/').map(encodeURIComponent).join('/')+'?ref=main',true).then(function(r){if(!r.ok)throw httpErr(r);return r.text()}).then(function(t){noteView.text=t||'(nota vazia)'}).catch(function(e){noteView.text=fail(e)}).then(render)}
 function b64(t){return btoa(unescape(encodeURIComponent(t)))}
+function decodeB64(t){return decodeURIComponent(escape(atob(String(t||'').replace(/\s/g,''))))}
+function classifiedText(original,category){
+ var m=original.match(/^---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/);
+ if(!m)return '---\nstatus: classificado\ncategoria: "'+category+'"\n---\n\n'+original;
+ var lines=m[1].split(/\r?\n/),hasStatus=false,hasCat=false;
+ lines=lines.map(function(line){
+  if(/^status\s*:/.test(line)){hasStatus=true;return 'status: classificado'}
+  if(/^categoria\s*:/.test(line)){hasCat=true;return 'categoria: "'+category+'"'}
+  return line
+ });
+ if(!hasStatus)lines.push('status: classificado');
+ if(!hasCat)lines.push('categoria: "'+category+'"');
+ return '---\n'+lines.join('\n')+'\n---'+m[2]+original.slice(m[0].length);
+}
+function classifyNote(){
+ if(!noteView||!classifyChoice||classifyBusy)return;
+ var path=noteView.path,category=classifyChoice,apiPath='/contents/'+path.split('/').map(encodeURIComponent).join('/')+'?ref=main';
+ classifyBusy=true;classifyMsg='Salvando classificação…';render();
+ return gh(apiPath,false).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){
+  if(!j.sha||!j.content)throw new Error('Não foi possível obter a versão atual da nota. Nenhuma alteração foi feita.');
+  var updated=classifiedText(decodeB64(j.content),category);
+  return fetch('https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+path.split('/').map(encodeURIComponent).join('/'),{
+   method:'PUT',headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+   body:JSON.stringify({message:'Classificar nota da Caixa de Entrada: '+category,content:b64(updated),sha:j.sha,branch:'main'})
+  }).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(){noteView.text=updated;classifyChoice='';classifyReview=false;classifyMsg='Classificação salva no cofre. O conteúdo original foi preservado.'})
+ }).catch(function(e){classifyMsg='Não foi possível classificar: '+fail(e)+' Nenhum conteúdo foi descartado.'})
+ .then(function(){classifyBusy=false;render()})
+}
 function saveNote(){var text=draft.trim();if(!text)return;var d=new Date(),iso=isoOf(d),hms=fmt({hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'},d).split(':'),path='Caixa de Entrada/'+iso+'-'+hms.join('')+'.md';
  var body='---\ncriado: '+iso+'T'+hms.join(':')+'-03:00\norigem: app CENTRAL JARVIS\nstatus: não classificado\n---\n\n'+text+'\n';
  wmsg='Gravando…';render();
@@ -170,7 +198,21 @@ function saveNote(){var text=draft.trim();if(!text)return;var d=new Date(),iso=i
   review=false;wmsg=(r.status==403||r.status==404)?'Sem permissão de escrita. Gere um token com “Contents: Read and write” e reconecte. Seu texto foi mantido.':r.status==401?'Token inválido ou expirado. Seu texto foi mantido.':r.status==422?'Já existe uma nota com esse nome. Tente novamente. Seu texto foi mantido.':'Erro '+r.status+' ao gravar. Seu texto foi mantido.'}).catch(function(e){review=false;wmsg=fail(e)+' Seu texto foi mantido.'}).then(render)}
 function vCofre(){var h='<h1>Cofre</h1><p class="sub">Notas do repositório privado e Caixa de Entrada.</p>';
  if(!cfg.token)return h+'<div class="card"><h2>Conectar</h2><input id="co" value="'+esc(cfg.owner)+'" placeholder="Usuário do GitHub" autocapitalize="none" autocorrect="off"><input id="cr" value="'+esc(cfg.repo)+'" placeholder="Repositório" autocapitalize="none" autocorrect="off"><input id="ct" name="chave-jarvis" type="text" placeholder="Token (cole aqui)" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><button class="btn" data-a="conn">Conectar</button><p class="mut">O token fica salvo apenas neste aparelho. Use um token restrito a este repositório. Para gravar notas, ele precisa da permissão Contents: Read and write.</p></div>';
- if(noteView)return h+'<div class="card"><button class="del" data-a="back">‹ Voltar</button><h2>'+esc(noteView.path)+'</h2><pre>'+esc(noteView.text)+'</pre></div>';
+ if(noteView){
+  var isInbox=noteView.path.indexOf('Caixa de Entrada/')===0;
+  var status=(noteView.text.match(/^status\s*:\s*(.+)$/mi)||[])[1]||'';
+  var category=(noteView.text.match(/^categoria\s*:\s*"?([^"\r\n]+)"?\s*$/mi)||[])[1]||'';
+  var alreadyClassified=/classificado/i.test(status)&&!/não\s+classificado/i.test(status);
+  h+='<div class="card"><button class="del" data-a="back">‹ Voltar</button><h2>'+esc(noteView.path)+'</h2>';
+  if(isInbox&&noteView.text!=='Carregando…'){
+   if(alreadyClassified)h+='<div class="aviso">Classificada'+(category?' · '+esc(category):'')+'.</div>';
+   else if(classifyReview)h+='<div class="aviso">A nota será classificada como <b>'+esc(classifyChoice)+'</b>. O texto original será mantido; apenas os campos de classificação serão acrescentados ou atualizados.</div><div class="two"><button class="btn" data-a="classifyConfirm" '+(classifyBusy?'disabled':'')+'>Confirmar classificação</button><button class="btn alt" data-a="classifyCancel">Voltar</button></div>';
+   else h+='<h2>Classificar nota</h2><p class="mut">Escolha uma categoria. Nada será alterado até sua confirmação.</p><select id="classifyCat"><option value="">Selecione uma categoria</option><option>Tarefa</option><option>Ideia</option><option>Compromisso</option><option>Lembrete</option></select><button class="btn" data-a="classifyReview">Revisar classificação</button>';
+   if(classifyMsg)h+='<div class="aviso">'+esc(classifyMsg)+'</div>';
+  }
+  h+='<h2 style="margin-top:14px">Conteúdo original</h2><pre>'+esc(noteView.text)+'</pre></div>';
+  return h
+ }
  h+='<div class="two"><button class="btn" data-a="sync">Atualizar</button><button class="btn alt" data-a="disc">Desconectar</button></div>';
  h+='<div class="card"><h2>Caixa de Entrada</h2>'+(review?'<div class="mut">Confirme o conteúdo que será gravado como nova nota no repositório:</div><pre>'+esc(draft)+'</pre><div class="two" style="margin-top:12px"><button class="btn" data-a="save">Confirmar e gravar</button><button class="btn alt" data-a="cancel">Voltar</button></div>':'<textarea id="nn" placeholder="Escreva uma ideia, um fato ou um registro…" rows="4">'+esc(draft)+'</textarea><button class="btn" data-a="rev">Revisar e gravar</button>')+(wmsg?'<div class="aviso">'+esc(wmsg)+'</div>':'')+'</div>';
  if(loading)h+='<div class="mut">Carregando…</div>';
@@ -194,7 +236,7 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-a]'
  else if(a=='sync'){fetchNotes()}
  else if(a=='note'){openN(el.getAttribute('data-p'))}
  else if(a=='back'){noteView=null}
- else if(a=='disc'){cfg.token='';notes=null;noteView=null;vmsg='';wmsg='';saveCfg()}
+ else if(a=='disc'){cfg.token='';notes=null;noteView=null;vmsg='';wmsg='';classifyChoice='';classifyReview=false;classifyMsg='';saveCfg()}
  else if(a=='rev'){var ta=document.getElementById('nn');if(ta)draft=ta.value;if(!draft.trim())return;review=true;wmsg=''}
  else if(a=='cancel'){review=false}
  else if(a=='save'){saveNote()}
