@@ -149,15 +149,19 @@ function loadCfg(){try{var r=localStorage.getItem('cj_cfg');if(r)cfg=Object.assi
 function saveCfg(){try{localStorage.setItem('cj_cfg',JSON.stringify(cfg))}catch(e){}}
 function gh(path,raw){return fetch('https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+path,{headers:{'Authorization':'Bearer '+cfg.token,'Accept':raw?'application/vnd.github.raw+json':'application/vnd.github+json'}})}
 function errMsg(r){return r.status==401?'Token inválido ou expirado.':r.status==403?'Acesso negado ou limite de requisições atingido.':r.status==404?'Repositório não encontrado. Confira usuário, nome do repositório e permissões do token.':'Erro '+r.status+' ao consultar o GitHub.'}
+function httpErr(r){var e=new Error(errMsg(r));e.status=r.status;return e}
+function diag(){var t='Repositório não encontrado. Tentei acessar '+cfg.owner+'/'+cfg.repo+'. ';
+ return fetch('https://api.github.com/user/repos?per_page=100',{headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json'}}).then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(l){
+  vmsg=t+(l.length?'O token enxerga: '+l.map(function(x){return x.full_name}).join(', ')+'.':'O token não enxerga nenhum repositório. Confira “Repository access” no token.')}).catch(function(e){vmsg=t+'Diagnóstico adicional: '+fail(e)})}
 function fail(e){return e&&e.name=='TypeError'?'Sem conexão com o GitHub.':(e&&e.message)||'Falha desconhecida.'}
 function fetchNotes(){vmsg='';loading=true;render();
- return gh('/git/trees/main?recursive=1').then(function(r){if(!r.ok)throw new Error(errMsg(r));return r.json()}).then(function(j){
+ return gh('/git/trees/main?recursive=1').then(function(r){if(!r.ok)throw httpErr(r);return r.json()}).then(function(j){
   notes=j.tree.filter(function(x){return x.type=='blob'&&/\.md$/i.test(x.path)&&x.path.charAt(0)!='.'}).map(function(x){return x.path}).sort();
-  vmsg=j.truncated?'Lista parcial: o repositório é grande demais para esta consulta.':''}).catch(function(e){notes=null;vmsg=fail(e)}).then(function(){loading=false;render()})}
+  vmsg=j.truncated?'Lista parcial: o repositório é grande demais para esta consulta.':''}).catch(function(e){notes=null;vmsg=fail(e);if(e&&e.status==404)return diag()}).then(function(){loading=false;render()})}
 function openN(p){noteView={path:p,text:'Carregando…'};render();
- return gh('/contents/'+p.split('/').map(encodeURIComponent).join('/')+'?ref=main',true).then(function(r){if(!r.ok)throw new Error(errMsg(r));return r.text()}).then(function(t){noteView.text=t||'(nota vazia)'}).catch(function(e){noteView.text=fail(e)}).then(render)}
+ return gh('/contents/'+p.split('/').map(encodeURIComponent).join('/')+'?ref=main',true).then(function(r){if(!r.ok)throw httpErr(r);return r.text()}).then(function(t){noteView.text=t||'(nota vazia)'}).catch(function(e){noteView.text=fail(e)}).then(render)}
 function vCofre(){var h='<h1>Cofre</h1><p class="sub">Leitura das notas do repositório privado. Somente leitura.</p>';
- if(!cfg.token)return h+'<div class="card"><h2>Conectar</h2><input id="co" value="'+esc(cfg.owner)+'" placeholder="Usuário do GitHub" autocapitalize="none" autocorrect="off"><input id="cr" value="'+esc(cfg.repo)+'" placeholder="Repositório" autocapitalize="none" autocorrect="off"><input id="ct" type="password" placeholder="Token somente leitura" autocomplete="off" autocapitalize="none" autocorrect="off"><button class="btn" data-a="conn">Conectar</button><p class="mut">O token fica salvo apenas neste aparelho. Use um token somente leitura, restrito a este repositório.</p></div>';
+ if(!cfg.token)return h+'<div class="card"><h2>Conectar</h2><input id="co" value="'+esc(cfg.owner)+'" placeholder="Usuário do GitHub" autocapitalize="none" autocorrect="off"><input id="cr" value="'+esc(cfg.repo)+'" placeholder="Repositório" autocapitalize="none" autocorrect="off"><input id="ct" type="text" style="-webkit-text-security:disc" placeholder="Token somente leitura" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><button class="btn" data-a="conn">Conectar</button><p class="mut">O token fica salvo apenas neste aparelho. Use um token somente leitura, restrito a este repositório.</p></div>';
  if(noteView)return h+'<div class="card"><button class="del" data-a="back">‹ Voltar</button><h2>'+esc(noteView.path)+'</h2><pre>'+esc(noteView.text)+'</pre></div>';
  h+='<div class="two"><button class="btn" data-a="sync">Atualizar</button><button class="btn alt" data-a="disc">Desconectar</button></div>';
  if(loading)h+='<div class="mut">Carregando…</div>';
