@@ -2,424 +2,171 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#07111f">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061326">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JARVIS">
 <title>CENTRAL JARVIS</title>
 <style>
-:root{color-scheme:dark;--bg:#061326;--surface:#0d2340;--surface2:#14345a;--line:#28547c;--text:#f7fbff;--muted:#a9bfd8;--blue:#45b5ff;--cyan:#62f0e2;--green:#65e6a6;--red:#ff8fa3;--amber:#ffd16a;--violet:#c49bff}
-*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:radial-gradient(ellipse at 50% -15%,#1b4e82 0,transparent 56%),linear-gradient(145deg,#07182e,#050f20 72%),var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
-button,input,textarea{font:inherit}button{cursor:pointer}html,body,button{touch-action:manipulation}
-.app{height:100%;height:100dvh;max-width:850px;margin:auto;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
-header{height:62px;flex:0 0 62px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff10;padding:0 3px}
-.brand{display:flex;align-items:center;gap:10px}.orb{width:35px;height:35px;border-radius:12px;background:linear-gradient(145deg,#9be4ff,#269bff);display:grid;place-items:center;color:#061321;font-weight:900;font-size:17px;box-shadow:0 0 22px #58b4ff33}.brand strong{font-size:14px;letter-spacing:.12em}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.04em}
-.sync{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid #294561;border-radius:20px;color:var(--muted);padding:7px 10px;font-size:11px}.sync .lamp{width:7px;height:7px;border-radius:50%;background:#71849a}.sync.connected .lamp{background:var(--green);box-shadow:0 0 8px #65d69a99}.sync.busy .lamp{background:var(--blue)}
-main{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px 0 12px}
-.welcome{padding:10px 4px 13px}.welcomeTop{display:flex;align-items:center;justify-content:space-between;gap:10px}.resetChat{border:1px solid #315d83;background:#102945;color:#cfe9ff;border-radius:20px;padding:5px 10px;font-size:10px;white-space:nowrap}.resetChat:active{background:#17436c}.welcome .eyebrow{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan)}.welcome h1{font-size:22px;line-height:1.2;margin:4px 0 5px;font-weight:650}.welcome p{font-size:12px;color:var(--muted);margin:0}
-.messages{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:4px 2px 14px;scroll-behavior:smooth}
-.message{max-width:min(90%,620px);padding:11px 14px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.48}
-.message.jarvis{align-self:flex-start;background:linear-gradient(145deg,#122e4d,#102640);border:1px solid #2b5277;border-bottom-left-radius:5px}
-.message.user{align-self:flex-end;background:linear-gradient(145deg,#1769a5,#125182);border:1px solid #3199d9;border-bottom-right-radius:5px}
-.message time{display:block;font-size:10px;color:#9ab5d0;margin-top:5px}
-.preview{margin-top:10px;padding:11px;background:#08182a;border:1px solid #315779;border-radius:12px}
-.preview-title{font-size:11px;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-.row{display:flex;justify-content:space-between;gap:14px;padding:5px 0;border-bottom:1px solid #1c344b;font-size:12px}.row:last-of-type{border:0}.row span{color:var(--muted)}.row b{text-align:right;font-weight:600}
-.confirm-actions{display:flex;gap:8px;margin-top:11px}.btn{border:0;border-radius:10px;padding:10px 13px;min-height:40px;font-weight:650;font-size:12px}.btn.primary{background:var(--blue);color:#061321;flex:1}.btn.secondary{background:#172d45;border:1px solid #34516d;color:var(--text)}
-.choices{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.choice{background:#0a1c30;color:#d8ebff;border:1px solid #345a7a;border-radius:18px;padding:7px 10px;font-size:12px}
-.composer-wrap{padding-top:9px;border-top:1px solid #ffffff12}.composer{display:flex;align-items:flex-end;gap:8px;background:#0b1a2c;border:1px solid #294762;border-radius:17px;padding:7px;box-shadow:0 8px 28px #0003}
-textarea{flex:1;min-width:0;max-height:140px;min-height:42px;resize:none;border:0;outline:0;background:transparent;color:var(--text);padding:9px 8px;line-height:1.4;font-size:16px}textarea::placeholder{color:#7189a3}
-.send{height:42px;width:42px;flex:0 0 42px;border:0;border-radius:12px;background:var(--blue);color:#07111f;font-size:21px;font-weight:800}
-.footnote{text-align:center;color:#7088a2;font-size:10px;padding:7px 0 0}
-.overlay{position:fixed;inset:0;background:#020812cc;backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.overlay.show{display:flex}
-.dialog{width:min(100%,440px);background:#0d1d30;border:1px solid #31516f;border-radius:18px;padding:18px;box-shadow:0 20px 70px #0009}.dialog h2{font-size:17px;margin:0 0 6px}.dialog p{font-size:12px;color:var(--muted);margin:0 0 13px}.dialog label{display:block;font-size:11px;color:#bad0e5;margin:10px 0 4px}.dialog input{font-size:16px;width:100%;background:#071525;border:1px solid #31516f;border-radius:10px;color:var(--text);padding:11px;outline:0}.dialog .actions{display:flex;gap:8px;margin-top:14px}.dialog .actions button{flex:1}.dialog .secure{font-size:10px;color:#9bb3cb;margin-top:12px}
-.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#17334c;border:1px solid #3a6386;color:#e8f5ff;border-radius:12px;padding:9px 13px;font-size:12px;max-width:90%;z-index:20;display:none}.toast.show{display:block}
-@media(min-width:650px){.app{padding-left:22px;padding-right:22px}.welcome h1{font-size:25px}.message{font-size:15px}.messages{gap:14px}}
-
-.menuBtn{width:32px;height:32px;border-radius:10px;border:1px solid #294561;background:#0b1b2d;color:#cfe5fb;font-size:16px;margin-right:1px}
-.chatView{display:flex;flex-direction:column;flex:1;min-height:0}
-.screen{display:none;flex:1;min-height:0;overflow:auto;padding:12px 2px 22px}.screen.active{display:block}
-.menuOverlay{justify-content:flex-start;align-items:stretch;padding:0}.menuPanel{width:min(82vw,310px);height:100%;background:#0b1a2c;border-right:1px solid #294762;padding:calc(15px + env(safe-area-inset-top)) 14px calc(15px + env(safe-area-inset-bottom));box-shadow:20px 0 60px #0008}
-.menuHead{display:flex;align-items:center;justify-content:space-between;padding:5px 2px 17px;border-bottom:1px solid #203b55;margin-bottom:12px}.menuHead b{letter-spacing:.06em}.menuHead button{background:none;border:0;color:var(--muted);font-size:25px}
-.menuItem{display:flex;align-items:center;gap:12px;width:100%;padding:12px 11px;margin:3px 0;background:transparent;border:0;border-radius:11px;color:#d9e9f8;text-align:left;font-size:14px}.menuItem.active,.menuItem:active{background:#17314c;color:#78c7ff}.menuIcon{width:25px;text-align:center;font-size:17px;color:var(--cyan)}
-.pageTitle{font-size:21px;margin:4px 0}.pageSub{font-size:12px;color:var(--muted);margin:0 0 15px}
-.moduleCard{background:linear-gradient(145deg,#12243a,#14283d 58%,#19283d);border:1px solid #2b4561;border-radius:16px;padding:14px;margin:0 0 11px;box-shadow:0 10px 28px #02091435}
-.moduleCard h3{font-size:14px;margin:0 0 8px}.moduleEmpty{font-size:13px;color:var(--muted);padding:8px 0}
-.moduleRow{padding:10px 0;border-bottom:1px solid #1b344d}.moduleRow:last-child{border:0}.moduleRow b{font-size:13px}.moduleMeta{font-size:11px;color:var(--muted);margin-top:3px}
-.moduleAction{background:#18334c;border:1px solid #3c607d;color:#e7f3ff;border-radius:9px;padding:7px 10px;font-size:11px}.moduleAction.delete{background:#2a202b;border-color:#714653;color:#ffb7bd;padding:6px 9px}.moduleActions{display:flex;gap:7px;align-items:center;margin-top:7px}
-.graphWrap{background:#081729;border:1px solid #1e3a56;border-radius:14px;overflow:hidden;padding:4px}.brainGraph{width:100%;height:auto;display:block}
-.graphWrap{background:radial-gradient(ellipse at 50% 48%,#183b4d 0%,#0c2034 48%,#091727 100%);border:1px solid #2b4964}.brainGraph{filter:drop-shadow(0 8px 18px #02081280)}.graphLine{stroke:#80b9d9;stroke-width:1.7;opacity:.48}.graphLine.hot{stroke:#ffe0a6;stroke-width:2.3;opacity:.78}.graphNode{stroke:#e4f4ff;stroke-width:1.6;filter:drop-shadow(0 0 8px currentColor)}.graphNode.music{fill:#27a9c8;stroke:#9cf2ff;color:#27a9c8}.graphNode.goals{fill:#a16ad8;stroke:#e0c1ff;color:#a16ad8}.graphNode.faith{fill:#d39b45;stroke:#ffe0a1;color:#d39b45}.graphNode.studies{fill:#4389d8;stroke:#b7d9ff;color:#4389d8}.graphNode.football{fill:#42a878;stroke:#b6f2ce;color:#42a878}.graphNode.finance{fill:#b8a34c;stroke:#f8e9a0;color:#b8a34c}.graphNode.business{fill:#d17c57;stroke:#ffd0b7;color:#d17c57}.graphNode.personal{fill:#bd718f;stroke:#ffd0e0;color:#bd718f}.graphNode.diary{fill:#7c86cf;stroke:#cbd0ff;color:#7c86cf}.graphNode.other{fill:#71869b;stroke:#d1e0ef;color:#71869b}.graphNode.core{fill:#e9a85c;stroke:#fff0ca;stroke-width:2.4;color:#e9a85c}.graphLabel{fill:#f4f8ff;font-size:11px;font-weight:650;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:#091727;stroke-width:2px;stroke-linejoin:round}.graphCount{fill:#d4e7f7;font-size:9px;text-anchor:middle;paint-order:stroke;stroke:#091727;stroke-width:2px}.graphLegend{font-size:11px;color:var(--muted);margin-top:10px}.brainCoreLabel{fill:#fff4df;font-size:12px;font-weight:700;text-anchor:middle}.brainPulse{fill:none;stroke:#ffc477;stroke-width:1;opacity:.28}
-.statLine{display:flex;gap:8px;flex-wrap:wrap}.statPill{border:1px solid #284864;border-radius:20px;padding:5px 9px;font-size:11px;color:#c7def3}
-
-
-/* Navegação inferior */
-.app{padding-bottom:0}
-main{padding-bottom:0}
-.bottomNav{height:calc(60px + env(safe-area-inset-bottom));min-height:calc(60px + env(safe-area-inset-bottom));flex:0 0 calc(60px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-around;gap:3px;border-top:1px solid #ffffff17;background:linear-gradient(180deg,#0b1726ee,#081321f8);padding:4px 2px calc(4px + env(safe-area-inset-bottom));margin:0 -14px;z-index:4;flex-shrink:0}
-.navTab{min-width:0;flex:1;height:48px;border:0;border-radius:12px;background:transparent;color:#8197af;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9px;letter-spacing:.01em}
-.navTab .navGlyph{font-size:17px;line-height:1.1}
-.navTab.active{color:#8bd2ff;background:linear-gradient(180deg,#16365099,#15304955);box-shadow:inset 0 0 0 1px #4b91b744}
-.navTab.active .navGlyph{filter:drop-shadow(0 0 6px #66bdff88)}
-@media(min-width:650px){.bottomNav{margin:0 -22px}}
-/* Mapa de conhecimento em tela ampla */
-#moduleScreen.brainScreen{padding:0;overflow:hidden;position:relative;background:#03060d}
-.brainCanvas{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,#102b4b 0%,#09182d 43%,#030914 100%)}
-.brainCanvas:before{content:"";position:absolute;inset:0;background-image:radial-gradient(1px 1px at 7% 13%,#fff 98%,transparent),radial-gradient(1px 1px at 23% 61%,#d9e8ff 98%,transparent),radial-gradient(1.5px 1.5px at 46% 22%,#fff 98%,transparent),radial-gradient(1px 1px at 68% 74%,#fff 98%,transparent),radial-gradient(1px 1px at 87% 31%,#dce9ff 98%,transparent),radial-gradient(1px 1px at 34% 88%,#fff 98%,transparent),radial-gradient(1px 1px at 93% 91%,#fff 98%,transparent),radial-gradient(1px 1px at 12% 82%,#b9d8ff 98%,transparent);background-size:173px 151px,211px 193px,257px 227px,191px 181px,233px 211px,271px 239px,197px 223px,241px 199px;opacity:.8;pointer-events:none}
-.brainCanvas:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,#02050bbd 100%);pointer-events:none}
-.brainSvg{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
-.brainEdge{stroke:#76caff;stroke-width:1;opacity:.28;filter:drop-shadow(0 0 3px #3eaeff66)}
-.brainEdge.strong{stroke:#d5f3ff;opacity:.78;stroke-width:1.8;filter:drop-shadow(0 0 5px #55c9ff)}
-.brainMesh{stroke:#6abaff;stroke-width:.65;opacity:.13;fill:none}.brainOrbit{stroke:#8ccfff;stroke-width:.8;stroke-dasharray:2 8;fill:none;opacity:.2}.brainHalo{fill:none;stroke:currentColor;stroke-width:1.2;opacity:.28;filter:drop-shadow(0 0 5px currentColor)}.brainCore{fill:#d8f5ff;stroke:#fff;stroke-width:2;filter:drop-shadow(0 0 8px #48bfff) drop-shadow(0 0 22px #258cff)}.brainCoreRing{fill:none;stroke:#65caff;stroke-width:1.2;opacity:.48;stroke-dasharray:5 7}.brainMicro{fill:#c7edff;opacity:.7;filter:drop-shadow(0 0 3px #55baff)}
-.brainStar{fill:#eaf4ff;opacity:.65}
-.brainDot{stroke:#f4fbff;stroke-width:1.5;cursor:pointer;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 13px currentColor);transition:r .2s,opacity .2s}
-.brainDot:focus{stroke:#fff;stroke-width:3;outline:none}
-.brainDot.personal{fill:#258fff;color:#258fff}
-.brainDot.faith{fill:#b27aff;color:#b27aff}
-.brainDot.music{fill:#28e4dc;color:#28e4dc}
-.brainDot.studies{fill:#648fff;color:#648fff}
-.brainDot.football{fill:#51e39b;color:#51e39b}
-.brainDot.finance{fill:#f2cf5b;color:#f2cf5b}
-.brainDot.business{fill:#ff9b69;color:#ff9b69}
-.brainDot.goals{fill:#ff83c6;color:#ff83c6}
-.brainDot.diary{fill:#9caaff;color:#9caaff}
-.brainDot.other{fill:#c5d8ec;color:#c5d8ec}
-.brainHint{position:absolute;top:12px;left:14px;right:14px;z-index:2;pointer-events:none;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;color:#d8eaff;font-size:9px;font-weight:700;letter-spacing:.13em;text-shadow:0 1px 8px #000}.brainHint i{width:3px;height:3px;border-radius:50%;background:#61d7ff;box-shadow:0 0 7px #61d7ff}.brainHint small{flex-basis:100%;text-align:center;color:#9db8d5;font-size:9px;font-weight:400;letter-spacing:.04em;text-transform:none}.brainStatus{position:absolute;bottom:12px;left:14px;right:14px;z-index:2;display:flex;justify-content:center;align-items:center;gap:7px;color:#a9c4df;font-size:8px;letter-spacing:.16em;text-shadow:0 1px 8px #000;pointer-events:none}.brainStatus b{color:#70e8cb;font-weight:700}.statusLed{width:6px;height:6px;border-radius:50%;background:#64edbd;box-shadow:0 0 8px #64edbd}
-.brainDetail{position:relative;z-index:2;min-height:100%;overflow:auto;padding:18px 4px 20px;background:radial-gradient(ellipse at 50% 0%,#152844,#081321 65%)}
-.brainDetailHead{display:flex;align-items:center;gap:10px;margin:0 0 16px}
-.brainBack{border:1px solid #36516d;background:#13283e;color:#eaf4ff;border-radius:10px;padding:8px 12px;font-size:12px}
-.brainColor{width:12px;height:12px;border-radius:50%;box-shadow:0 0 12px currentColor}
-.brainDetailTitle{font-size:18px;font-weight:650}
-.brainDetailSub{font-size:11px;color:var(--muted);margin-top:2px}
-.brainInfoCard{background:#102239d9;border:1px solid #2b4561;border-radius:14px;padding:13px;margin:0 0 10px}
-.brainInfoCard b{font-size:13px}.brainInfoCard p{font-size:12px;color:#c3d2e3;margin:6px 0 0;white-space:pre-wrap}
-
-.contextSegment{border:1px solid #3b6b98;background:#102640;border-radius:12px;padding:11px;margin:9px 0}.contextSegment textarea{width:100%;min-height:65px;background:#091a30;color:#fff;border:1px solid #456b8e;border-radius:8px;padding:9px;line-height:1.45}.contextSegment select{width:100%;margin-top:8px;background:#102640;color:#fff;border:1px solid #456b8e;border-radius:8px;padding:9px}.contextSegment .segmentHead{display:flex;justify-content:space-between;color:#a9bfd8;font-size:11px;margin-bottom:7px}
-.contextCategory{width:100%;background:#102640;color:#fff;border:1px solid #456b8e;border-radius:9px;padding:11px;margin:6px 0 12px}.rememberToken{display:flex;align-items:center;gap:8px;margin:10px 0;color:#d8eaff;font-size:13px}.rememberToken input{width:18px;height:18px;accent-color:#38aaff}
-
-.weatherChip{display:flex;align-items:center;gap:7px;border:1px solid #3b7098;background:linear-gradient(135deg,#123657,#0d2742);color:#f4fbff;border-radius:18px;padding:7px 9px;min-width:68px;justify-content:center;box-shadow:0 0 15px #38aaff12;font-weight:750;font-size:13px;white-space:nowrap}
-.weatherChip:active{background:#194a70}.weatherRain{display:flex;align-items:center;gap:3px;color:#9ddcff;font-size:10px;font-weight:650}.weatherRain span:first-child{font-size:12px}
-.weatherChip.loading{opacity:.7}.weatherChip.error{border-color:#8a6470}
-.weatherDialogGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-.weatherMetric{background:#102943;border:1px solid #294d6d;border-radius:11px;padding:10px}
-.weatherMetric small{display:block;color:#a9bfd8;font-size:10px}.weatherMetric b{font-size:16px;color:#f6fbff}
-.weatherCondition{font-size:14px;color:#d9efff;margin:6px 0 12px}.weatherUpdated{font-size:10px;color:#8fa9c3;margin-top:8px}
-@media(max-width:390px){.brand{gap:7px}.brand strong{font-size:12px;letter-spacing:.09em}.brand small{font-size:9px}.orb{width:32px;height:32px}.weatherChip{gap:5px;padding:6px 7px;font-size:12px}.sync{padding:6px 8px;font-size:10px}}
-
+html{background:#061326}
+:root{--bg:#061326;--card:#0d2340;--line:#28547c;--text:#f2f8ff;--mut:#a9bfd8;--blue:#45b5ff;--cyan:#62f0e2;--red:#ff8fa3;--green:#65e6a6}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% -10%,#1b4e82 0,transparent 55%),#061326;color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+button,input,textarea{font:inherit}button{cursor:pointer}
+#err{display:none;position:fixed;top:0;left:0;right:0;z-index:99;background:#5a1020;color:#fff;font-size:12px;padding:10px 12px;white-space:pre-wrap}
+.app{height:100vh;height:100dvh;max-width:760px;margin:auto;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px 0}
+header{flex:0 0 60px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #ffffff14}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.orb{width:34px;height:34px;flex:0 0 34px;border-radius:12px;background:linear-gradient(145deg,#9be4ff,#269bff);display:grid;place-items:center;color:#061321;font-weight:900;animation:pulse 3.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px #58b4ff44}50%{box-shadow:0 0 26px #62f0e299}}
+.brand b{display:block;font-size:14px;letter-spacing:.12em}.brand small{display:block;color:var(--mut);font-size:10px;white-space:nowrap}
+.chip{border:1px solid #3b7098;background:#123657;color:#f4fbff;border-radius:18px;padding:6px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.views{flex:1;min-height:0;position:relative}
+.view{display:none;height:100%;flex-direction:column}.view.on{display:flex}
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:14px 2px 16px}
+.msgs{display:flex;flex-direction:column;gap:11px}
+.m{max-width:92%;padding:10px 13px;border-radius:15px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.m.j{align-self:flex-start;background:#112c4a;border:1px solid #2b5277;border-left:2px solid var(--cyan);border-bottom-left-radius:4px}
+.m.u{align-self:flex-end;background:#145a91;border:1px solid #3199d9;border-bottom-right-radius:4px}
+.m time{display:block;font-size:10px;color:#9ab5d0;margin-top:4px}
+.typing{display:flex;gap:5px;padding:14px}.typing i{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:bl 1.1s infinite}.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.prev{margin-top:9px;padding:10px;background:#08182a;border:1px solid #315779;border-radius:11px;font-size:12px}
+.prev div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}.prev span{color:var(--mut)}
+.acts{display:flex;gap:8px;margin-top:9px}
+.btn{border:0;border-radius:10px;padding:9px 13px;min-height:38px;font-weight:650;font-size:12px;background:#172d45;border:1px solid #34516d;color:var(--text)}
+.btn.p{background:var(--blue);color:#061321;border-color:var(--blue);flex:1}
+.quick{display:flex;gap:7px;overflow-x:auto;padding:8px 1px;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}
+.quick button{flex:0 0 auto;background:#0a1c30;color:#bfe9ff;border:1px solid #2f5f80;border-radius:16px;padding:6px 11px;font-size:12px}
+.quick button.on{border-color:var(--cyan);color:var(--cyan)}
+.comp{display:flex;align-items:flex-end;gap:8px;background:#0b1a2c;border:1px solid #294762;border-radius:17px;padding:7px;margin-bottom:8px}
+textarea{flex:1;min-width:0;max-height:120px;min-height:40px;resize:none;border:0;outline:0;background:transparent;color:var(--text);padding:9px 8px;font-size:16px}
+.sq{height:40px;width:40px;flex:0 0 40px;border:0;border-radius:12px;background:var(--blue);color:#07111f;font-size:20px;font-weight:800}
+.sq.mic{display:none;background:#12304d;color:#9fe9ff;border:1px solid #2f5f80;font-size:16px}.sq.mic.on{background:var(--red);animation:bl 1s infinite}
+h2{font-size:20px;margin:2px 0 4px}.sub{font-size:12px;color:var(--mut);margin:0 0 12px}
+.card{background:linear-gradient(145deg,#12243a,#16293f);border:1px solid #2b4561;border-radius:15px;padding:13px;margin:0 0 10px}
+.card h3{font-size:14px;margin:0 0 6px}.row{padding:7px 0;border-bottom:1px solid #1b344d;font-size:13px}.row:last-child{border:0}.meta{font-size:11px;color:var(--mut)}
+.pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.pill{border:1px solid #284864;border-radius:20px;padding:4px 10px;font-size:11px;color:#c7def3}
+.form{display:flex;gap:7px;margin-bottom:12px}.form input{min-width:0;background:#071525;border:1px solid #31516f;border-radius:10px;color:var(--text);padding:10px;font-size:16px;outline:0}
+.bar{display:grid;grid-template-columns:110px 1fr 26px;gap:8px;align-items:center;font-size:12px;margin:6px 0}.bar em{height:9px;background:#0a1c30;border-radius:6px;overflow:hidden;display:block}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan))}.bar b{text-align:right}
+.done{opacity:.5;text-decoration:line-through}
+nav{flex:0 0 auto;display:flex;border-top:1px solid #ffffff17;margin:0 -14px;padding:4px 4px calc(4px + env(safe-area-inset-bottom));background:#081321}
+nav button{flex:1;height:48px;border:0;border-radius:12px;background:transparent;color:#8197af;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+nav button span{font-size:17px}nav button.on{color:#8bd2ff;background:#16365088}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
 <body>
+<div id="err"></div>
+<script>window.onerror=function(m,u,l){var e=document.getElementById('err');if(e){e.style.display='block';e.textContent='Erro no aplicativo: '+m+' (linha '+l+')'}};</script>
 <div class="app">
 <header>
- <div class="brand"><div class="orb">J</div><div><strong>CENTRAL JARVIS</strong><small>ASSISTENTE PESSOAL</small></div></div>
- <button class="weatherChip" id="weatherOpen" type="button" aria-label="Abrir detalhes do clima de Belo Horizonte">
-  <span id="weatherTemp">--°</span><span class="weatherRain"><span aria-hidden="true">☔</span><span id="weatherRainPct">--%</span></span>
- </button>
- <button class="sync" id="syncButton" type="button" title="Sincronização com GitHub e Obsidian"><i class="lamp"></i><span id="syncLabel">GitHub</span></button>
+ <div class="brand"><div class="orb">J</div><div><b>CENTRAL JARVIS</b><small id="hud">ASSISTENTE PESSOAL</small></div></div>
+ <button class="chip" id="wchip" type="button">--°</button>
 </header>
-<main>
- <div id="chatView" class="chatView">
- <section class="welcome"><div class="welcomeTop"><div class="eyebrow">Central de conversação</div><div style="display:flex;gap:6px"><button class="resetChat" id="contextManagerOpen" type="button">◈ Organizar contexto</button><button class="resetChat" id="resetChat" type="button">↺ Limpar chat</button></div></div><h1>Em que posso ajudar?</h1><p>Converse livremente. Registros somente quando você solicitar explicitamente.</p></section>
- <section class="messages" id="messages" aria-live="polite"></section>
- <section class="composer-wrap">
-  <div class="composer"><textarea id="chatInput" rows="1" aria-label="Mensagem para o JARVIS" placeholder="Escreva sua mensagem..."></textarea><button class="send" id="sendButton" aria-label="Enviar">↑</button></div>
-  <div class="footnote" id="footnote">Se faltar uma informação importante, vou perguntar antes de registrar.</div>
+<div class="views">
+ <section class="view on" id="v-chat">
+  <div class="scroll" id="scroll"><div class="msgs" id="msgs"></div></div>
+  <div class="quick" id="quick"></div>
+  <div class="comp"><textarea id="inp" rows="1" placeholder="Escreva sua mensagem..." aria-label="Mensagem"></textarea><button class="sq mic" id="mic" type="button" aria-label="Falar">🎙</button><button class="sq" id="send" type="button" aria-label="Enviar">↑</button></div>
  </section>
- </div>
- <section id="moduleScreen" class="screen"></section>
-</main>
-<nav class="bottomNav" id="bottomNav" aria-label="Navegação principal"></nav>
+ <section class="view" id="v-agenda"><div class="scroll" id="agenda"></div></section>
+ <section class="view" id="v-tarefas"><div class="scroll" id="tarefas"></div></section>
+ <section class="view" id="v-painel"><div class="scroll" id="painel"></div></section>
 </div>
-<div class="overlay" id="weatherOverlay" role="dialog" aria-modal="true" aria-labelledby="weatherTitle">
- <div class="dialog">
-  <h2 id="weatherTitle">Clima em Jardim Guanabara</h2>
-  <p id="weatherCondition" class="weatherCondition">Consultando as condições atuais…</p>
-  <div class="weatherDialogGrid">
-   <div class="weatherMetric"><small>Temperatura atual</small><b id="weatherDetailTemp">--</b></div>
-   <div class="weatherMetric"><small>Chance de chuva agora</small><b id="weatherDetailRain">--</b></div>
-   <div class="weatherMetric"><small>Mínima de hoje</small><b id="weatherMin">--</b></div>
-   <div class="weatherMetric"><small>Máxima de hoje</small><b id="weatherMax">--</b></div>
-   <div class="weatherMetric"><small>Sensação térmica</small><b id="weatherFeels">--</b></div>
-   <div class="weatherMetric"><small>Umidade</small><b id="weatherHumidity">--</b></div>
-   <div class="weatherMetric"><small>Vento</small><b id="weatherWind">--</b></div>
-   <div class="weatherMetric"><small>Chuva prevista hoje</small><b id="weatherRainTotal">--</b></div>
-  </div>
-  <div class="weatherUpdated" id="weatherUpdated">Dados meteorológicos via Open-Meteo.</div>
-  <div class="actions"><button class="btn secondary" id="weatherClose">Fechar</button><button class="btn primary" id="weatherRefresh">Atualizar</button></div>
- </div>
+<nav id="nav"></nav>
 </div>
-
-<div class="overlay" id="connectOverlay" role="dialog" aria-modal="true" aria-labelledby="connectTitle">
- <div class="dialog">
-  <h2 id="connectTitle">Conectar ao GitHub</h2>
-  <p>O aplicativo usará o repositório configurado para sincronizar seus registros em Markdown com o Obsidian.</p>
-  <label for="ghToken">Token de acesso pessoal do GitHub</label>
-  <input id="ghToken" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Cole seu token aqui">
-  <div class="actions"><button class="btn secondary" id="cancelConnect">Cancelar</button><button class="btn primary" id="connectNow">Conectar e sincronizar</button></div>
-  <label class="rememberToken"><input id="rememberToken" type="checkbox"> Manter conexão neste aparelho</label><div class="secure">Se ativado, o token ficará salvo no armazenamento local deste navegador para reconectar automaticamente. Use somente em aparelho pessoal protegido. Sem marcar, a conexão termina ao fechar a sessão.</div>
- </div>
-</div>
-<div class="overlay" id="contextManager" role="dialog" aria-modal="true">
-<div class="dialog" style="max-height:90dvh;overflow:auto">
-<h2>Organizar contexto por assunto</h2>
-<p>Escolha uma área e salve o contexto completo como um único documento, sem divisão automática. Atenção: o repositório configurado é público; não sincronize dados privados ou sensíveis nele.</p>
-<label for="contextCategory">Área de contexto</label><select id="contextCategory" class="contextCategory"></select>
-<label for="contextSource">Documento integral da área selecionada</label><textarea id="contextSource" rows="10" placeholder="Cole aqui todo o contexto desta área. O texto será preservado integralmente como um único documento..."></textarea>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button class="btn primary" id="contextSaveAll" type="button">Salvar documento completo</button><button class="btn secondary" id="backupExport" type="button">Exportar backup</button><button class="btn secondary" id="backupImport" type="button">Importar backup</button><button class="btn secondary" id="contextClose" type="button">Fechar</button><input id="backupFile" type="file" accept="application/json,.json" hidden></div>
-<div class="secure" id="contextSyncStatus">Cada área terá um único documento de contexto, que poderá ser atualizado sem fragmentação.</div>
-</div></div><div class="toast" id="toast"></div>
 <script>
-(()=>{
+(function(){
 'use strict';
-const GH={owner:'rafasouzz00',repo:'central-jarvis-vault',branch:'main',root:'JARVIS/Registros'};
-const TZ='America/Sao_Paulo';
-const CATS=['Pessoal','Família e relações','Fé','Música','Estudos','Inglês','Futebol','Finanças','Empreendedorismo','Marketing e afiliados','Tecnologia','CENTRAL JARVIS','Games','Grand Aurora','Objetivos','Rotina e agenda','Diário','Preferências do assistente','Instruções do JARVIS','Saúde e bem-estar','Projetos','Aprendizados','Decisões','Pesquisas','Outros'];
-
-const INITIAL_CONTEXT = [
-{cat:'Pessoal',text:'O usuário prefere português brasileiro e comunicação profissional, objetiva, clara e precisa. Valoriza honestidade, explicações práticas, respeito às correções e transparência sobre limites. Tem interesse em tecnologia, música, estudos, futebol, games, marketing, finanças e desenvolvimento de projetos. Não transformar conversas comuns em registros automaticamente.'},
-{cat:'Música',text:'O usuário toca teclado e tem interesse em piano, teoria musical, harmonia, acordes, melodias, arranjos e medleys. O instrumento informado é um Yamaha PSR-B20. Prefere instruções práticas, notas explícitas, separação entre mão direita e esquerda, explicação de acordes e exercícios progressivos. Tem interesse em música cristã e repertório de louvor. '},
-{cat:'Estudos',text:'O usuário é estudante e quer apoio em matemática, física, inglês e educação física. Prefere explicações passo a passo, exemplos, exercícios progressivos, correções claras e revisão. Para inglês, gosta de traduções do português para o inglês, perguntas curtas e correções graduais. '},
-{cat:'Inglês',text:'O usuário quer desenvolver inglês gradualmente. Prefere vocabulário e frases simples no início, prática de tradução do português para o inglês, perguntas interativas, correção de erros com explicação e variedade nos exercícios.'},
-{cat:'Futebol',text:'O usuário torce para o Atlético Mineiro e acompanha futebol. Ao tratar de resultados, notícias, escalações e transferências atuais, consultar fontes recentes e separar fatos confirmados de rumores.'},
-{cat:'Finanças',text:'O usuário quer aprender educação financeira, organização do dinheiro, planejamento, poupança e investimentos. Explicar riscos, liquidez, inflação e diferenças entre produtos. Não prometer ganhos nem tratar rentabilidade passada como garantia.'},
-{cat:'Empreendedorismo',text:'O usuário tem interesse em empreendedorismo, marketing digital, vendas, pequenos negócios e divulgação. Prefere identidade visual moderna, sofisticada, profissional e coerente. Diferenciar ideias em desenvolvimento de decisões já tomadas.'},
-{cat:'Marketing e afiliados',text:'O usuário relatou atuar como afiliado do Mercado Livre e da Shopee e desenvolver o perfil garimpei_ponto_ofc. Prefere identidade visual própria, moderna e profissional, sem depender dos logotipos das plataformas. Já trabalhou em ideias de divulgação de produtos, incluindo kit com três calças.'},
-{cat:'Tecnologia',text:'O usuário tem interesse em inteligência artificial, programação, desenvolvimento web, HTML, automação, GitHub, Obsidian e tecnologia mobile. Prefere soluções gratuitas. Não afirmar que uma regra JavaScript equivale a um modelo de linguagem avançado.'},
-{cat:'CENTRAL JARVIS',text:'Projeto principal: CENTRAL JARVIS, aplicativo de assistente pessoal. Áreas desejadas: Chat, Projetos, Agenda, Tarefas, Cérebro e Diário, com GitHub e Obsidian como armazenamento. O chat deve permitir conversa livre e só criar registros quando o usuário solicitar explicitamente. O design desejado é executivo e tecnológico, com azul vivo, azul profundo, branco e neon moderado. Navegação inferior persistente. Preservar dados, evitar duplicações e informar falhas reais.'},
-{cat:'Games',text:'O usuário gosta de games, construção, simulação e gerenciamento. Evitar spoilers de séries e filmes sem perguntar até onde acompanhou.'},
-{cat:'Grand Aurora',text:'Projeto Minecraft Bedrock: Grand Aurora, cidade moderna e realista em Realm. Preferência por blocos vanilla, PvP desativado e sistemas de governo, economia, empresas, profissões, moradias e regras municipais. Moeda: Aureos. Prefeitura e delegacia fazem parte das construções. Não alterar regras estabelecidas sem consultar.'},
-{cat:'Objetivos',text:'Objetivos gerais relatados: desenvolver a CENTRAL JARVIS, aprender tecnologia e inteligência artificial, melhorar no teclado, avançar nos estudos e no inglês, aprender empreendedorismo e finanças, organizar a rotina e desenvolver projetos. Não criar prazos ou tarefas sem solicitação.'},
-{cat:'Rotina e agenda',text:'A categoria reúne compromissos e rotinas que o usuário optar por cadastrar localmente. Não inventar compromissos.'},
-{cat:'Preferências do assistente',text:'O usuário quer um assistente estilo JARVIS: profissional, executivo, tecnológico, objetivo, preciso, honesto e cordial. Deve admitir limites, respeitar correções, conversar naturalmente e não registrar tudo automaticamente.'},
-{cat:'Instruções do JARVIS',text:'Prioridade: compreender primeiro, responder naturalmente, executar apenas quando solicitado e registrar somente com autorização explícita. Não transformar qualquer mensagem em tarefa, compromisso ou diário. Ao registrar, classificar o destino, apresentar prévia e aguardar confirmação. Não inventar operações concluídas.'}
-];
-function seedInitialContext(){
- let changed=false;
- for(const item of INITIAL_CONTEXT){
-   if(!contextSegments.some(x=>x.cat===item.cat)){
-     contextSegments.push({id:'context-'+slug(item.cat),cat:item.cat,text:item.text,updated:new Date().toISOString(),source:'initial'});
-     changed=true;
-   }
- }
- if(changed)persist();
-}
-
-let token='',connected=false,busy=false,pending=null,records=[],messages=[],deletedIds=[],toastTimer=null,contextSegments=[],contextDraft=[];
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const dateNow=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:TZ}).format(new Date());
-const timeNow=()=>new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
-function plusDays(iso,n){let d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return new Intl.DateTimeFormat('sv-SE').format(d)}
-function formatDate(iso){if(!iso)return 'Não definida';let [y,m,d]=iso.split('-');return d+'/'+m+'/'+y}
-function persist(){try{const key='jarvis_v3_local',backupKey='jarvis_v3_local_backup';const previous=localStorage.getItem(key);if(previous)localStorage.setItem(backupKey,previous);const snapshot=JSON.stringify({records,messages,deletedIds,contextSegments,savedAt:new Date().toISOString()});localStorage.setItem(key,snapshot);localStorage.setItem('jarvis_v3_local_last_saved',new Date().toISOString())}catch(e){showToast('Não foi possível salvar localmente neste aparelho. Verifique o espaço disponível do navegador.')}}
-function load(){try{localStorage.removeItem('cj_cfg')}catch(e){}try{let raw=localStorage.getItem('jarvis_v3_local');let d=JSON.parse(raw||'{}');if(!raw||(!d.records&&!d.contextSegments)){let backup=JSON.parse(localStorage.getItem('jarvis_v3_local_backup')||'{}');if(backup.records||backup.contextSegments)d=backup}records=d.records||[];messages=d.messages||[];deletedIds=d.deletedIds||[];contextSegments=d.contextSegments||[]}catch(e){try{let backup=JSON.parse(localStorage.getItem('jarvis_v3_local_backup')||'{}');records=backup.records||[];messages=backup.messages||[];deletedIds=backup.deletedIds||[];contextSegments=backup.contextSegments||[]}catch(_){}}try{let old=JSON.parse(localStorage.getItem('jarvis_v2')||'null');if(old){let add=[];for(let x of (old.tasks||[]))add.push({id:x.id||'old-'+Date.now()+'-'+Math.random(),type:x.type||'Tarefa',cat:x.cat||'Outros',date:x.due||x.date||'',time:x.time||'',title:x.title||'Registro anterior',source:x.text||x.title||'',created:x.created||new Date().toISOString(),done:!!x.done});for(let x of (old.events||[]))add.push({...x,id:x.id||'old-'+Date.now()+'-'+Math.random(),type:'Compromisso',cat:x.cat||'Outros',title:x.title||'Compromisso',source:x.text||x.title||'',created:x.created||new Date().toISOString()});for(let x of (old.ideas||[]))add.push({...x,type:'Ideia',source:x.text||x.title||'',created:x.created||new Date().toISOString()});for(let x of (old.diary||[]))add.push({...x,type:'Registro pessoal',source:x.text||x.title||'',created:x.created||new Date().toISOString()});let ids=new Set(records.map(x=>x.id));add.forEach(x=>{if(!ids.has(x.id)){x.synced=false;records.push(x)}});if(!messages.length)messages=old.messages||[];persist();localStorage.setItem('jarvis_v2_migrated','1')}}catch(e){}try{let legacy=JSON.parse(localStorage.getItem('cj_tasks')||'[]');let ids=new Set(records.map(x=>x.id));legacy.forEach(x=>{let id=x.id||'legacy-'+Date.now()+'-'+Math.random();if(!ids.has(id)){records.push({id,type:'Tarefa',cat:x.cat||'Outros',date:x.due||'',time:x.time||'',title:x.title||'Tarefa anterior',source:x.text||x.title||'',created:x.created||new Date().toISOString(),done:!!x.done,synced:false});ids.add(id)}});persist()}catch(e){}if(!messages.length){messages.push({role:'jarvis',text:'Olá. Este é seu espaço de conversa. Não vou transformar mensagens em registros sem um pedido explícito. Posso organizar informações e salvar documentos completos por categoria.'})}}
-function showToast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3800)}
-
-const WEATHER={lat:-19.827,lon:-43.936,place:'Jardim Guanabara, Belo Horizonte'};
-let weatherLast=null,weatherBusy=false;
-function weatherDescription(code){
- const map={0:'Céu limpo',1:'Predominantemente limpo',2:'Parcialmente nublado',3:'Nublado',45:'Neblina',48:'Neblina com geada',51:'Garoa leve',53:'Garoa moderada',55:'Garoa intensa',56:'Garoa congelante leve',57:'Garoa congelante intensa',61:'Chuva leve',63:'Chuva moderada',65:'Chuva forte',66:'Chuva congelante leve',67:'Chuva congelante forte',71:'Neve leve',73:'Neve moderada',75:'Neve forte',77:'Grãos de neve',80:'Pancadas leves',81:'Pancadas moderadas',82:'Pancadas fortes',85:'Pancadas de neve leves',86:'Pancadas de neve fortes',95:'Trovoada',96:'Trovoada com granizo leve',99:'Trovoada com granizo forte'};
- return map[code]||'Condição não informada';
-}
-function fmtNum(v,unit=''){return Number.isFinite(Number(v))?Math.round(Number(v))+unit:'--'}
-function renderWeather(data){
- const c=data.current||{},h=data.hourly||{},d=data.daily||{};
- const now=c.time?new Date(c.time).getTime():Date.now();
- let idx=0,best=Infinity;
- (h.time||[]).forEach((t,i)=>{let delta=Math.abs(new Date(t).getTime()-now);if(delta<best){best=delta;idx=i}});
- const rain=(h.precipitation_probability||[])[idx];
- $('weatherTemp').textContent=fmtNum(c.temperature_2m,'°');
- $('weatherRainPct').textContent=fmtNum(rain,'%');
- $('weatherDetailTemp').textContent=fmtNum(c.temperature_2m,' °C');
- $('weatherDetailRain').textContent=fmtNum(rain,'%');
- $('weatherMin').textContent=fmtNum((d.temperature_2m_min||[])[0],' °C');
- $('weatherMax').textContent=fmtNum((d.temperature_2m_max||[])[0],' °C');
- $('weatherFeels').textContent=fmtNum(c.apparent_temperature,' °C');
- $('weatherHumidity').textContent=fmtNum(c.relative_humidity_2m,'%');
- $('weatherWind').textContent=fmtNum(c.wind_speed_10m,' km/h');
- $('weatherRainTotal').textContent=fmtNum((d.precipitation_sum||[])[0],' mm');
- $('weatherCondition').textContent=weatherDescription(c.weather_code);
- $('weatherUpdated').textContent='Atualizado: '+(c.time?new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(c.time)):'horário indisponível')+' · Fonte: Open-Meteo';
- $('weatherOpen').classList.remove('loading','error');weatherLast=data;
-}
-async function loadWeather(force=false){
- if(weatherBusy)return;
- if(!force){try{let cached=JSON.parse(localStorage.getItem('jarvis_weather_cache')||'null');if(cached&&Date.now()-cached.savedAt<15*60*1000){renderWeather(cached.data);return}}catch(e){}}
- weatherBusy=true;$('weatherOpen').classList.add('loading');
- const url='https://api.open-meteo.com/v1/forecast?latitude='+WEATHER.lat+'&longitude='+WEATHER.lon+'&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=1';
- try{
-  const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
-  const data=await response.json();renderWeather(data);
-  try{localStorage.setItem('jarvis_weather_cache',JSON.stringify({savedAt:Date.now(),data}))}catch(e){}
- }catch(e){
-  $('weatherOpen').classList.remove('loading');$('weatherOpen').classList.add('error');
-  $('weatherTemp').textContent='--°';$('weatherRainPct').textContent='--%';
-  $('weatherCondition').textContent='Não foi possível atualizar o clima. Verifique sua conexão e tente novamente.';
-  $('weatherUpdated').textContent='A previsão não está disponível no momento.';
- }finally{weatherBusy=false}
-}
-function openWeather(){ $('weatherOverlay').classList.add('show');if(!weatherLast)loadWeather(true)}
-
-function setSyncState(state,label){let b=$('syncButton');b.classList.toggle('connected',state==='connected');b.classList.toggle('busy',state==='busy');$('syncLabel').textContent=label}
-function addMessage(role,text,extra){messages.push({role,text,extra:extra||null,at:Date.now()});if(messages.length>100)messages=messages.slice(-100);persist();renderMessages()}
-function renderMessages(){let html='';messages.forEach(m=>{html+='<article class="message '+(m.role==='user'?'user':'jarvis')+'">'+esc(m.text)+(m.extra?.preview?renderPreview(m.extra.preview):'')+(m.extra?.choices?'<div class="choices">'+m.extra.choices.map(v=>'<button class="choice" data-choice="'+esc(v)+'">'+esc(v)+'</button>').join('')+'</div>':'')+'<time>'+new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(m.at||Date.now()))+'</time></article>'});$('messages').innerHTML=html;$('messages').scrollTop=$('messages').scrollHeight}
-function renderPreview(p){return '<div class="preview"><div class="preview-title">Confira antes de salvar</div>'+(p.type?'<div class="row"><span>Tipo</span><b>'+esc(p.type)+'</b></div>':'')+'<div class="row"><span>Tema</span><b>'+esc(p.cat||'Outros')+'</b></div>'+(p.date?'<div class="row"><span>Data</span><b>'+formatDate(p.date)+'</b></div>':'')+(p.time?'<div class="row"><span>Horário</span><b>'+esc(p.time)+'</b></div>':'')+'<div class="row"><span>Assunto</span><b>'+esc(p.title)+'</b></div><div class="confirm-actions"><button class="btn primary" data-action="confirm">Confirmar e salvar</button><button class="btn secondary" data-action="edit">Corrigir</button><button class="btn secondary" data-action="cancel">Cancelar</button></div></div>'}
-function inferCategory(s){let t=s.toLowerCase();let rules=[['Fé',/deus|jesus|bíblia|igreja|culto|oração|célula|versículo|pecado|adoração|louvor cristão/],['Música',/teclado|piano|música|musica|cifra|acorde|ensaio|instrumento|melodia|harmonia/],['Futebol',/atlético|atletico|galo|futebol|cruzeiro|jogo|partida|campeonato/],['Finanças',/dinheiro|finanças|investimento|investir|economia|poupança|orçamento|renda/],['Estudos',/estudar|estudo|escola|prova|matéria|curso|aula|lição|dever escolar/],['Tecnologia',/programação|programacao|código|codigo|aplicativo|app|software|github|obsidian|inteligência artificial|tecnologia|servidor|site|html|javascript/],['Empreendedorismo',/empresa|negócio|negocio|venda|marketing|cliente|marmitex|instagram|afiliado|produto|marca|publicidade/],['Objetivos',/meta|objetivo|pretendo|planejo|quero conseguir|quero alcançar/],['Diário',/hoje eu|me senti|fiquei|estou feliz|estou triste|foi um dia|aprendi que|percebi que/],['Pessoal',/família|familia|mãe|pai|casa|amigo|cachorro|preferência pessoal|minha rotina/]];let hits=rules.filter(([c,re])=>re.test(t)).map(([c])=>c);return hits.length===1?hits[0]:hits.length>1?'Revisar':'Outros'}
-function inferType(s){let t=s.toLowerCase();if(/me lembra|lembre-me|não posso esquecer|nao posso esquecer|lembrar de/.test(t))return 'Lembrete';if(/tive uma ideia|minha ideia|ideia:|poderia criar|e se eu|seria interessante/.test(t))return 'Ideia';if(/\b(meta|objetivo|quero alcançar|quero atingir|quero conseguir|até o final do ano|até o fim do ano)\b/.test(t))return 'Meta';if(/tenho consulta|reuni[aã]o|encontro|compromisso|vou ao|vou à|estarei|est[aá] marcado|agendado|culto|c[eé]lula|aula presencial/.test(t))return 'Compromisso';if(/preciso|tenho que|devo |fazer |entregar |terminar |concluir |resolver |comprar |estudar |praticar |ligar para|enviar /.test(t))return 'Tarefa';if(/hoje eu|me senti|fiquei|estou feliz|estou triste|foi um dia|aprendi que|percebi que|aconteceu/.test(t))return 'Registro pessoal';return ''}
-function inferDate(s){let t=s.toLowerCase(),d='';if(/depois de amanh[aã]/.test(t))d=plusDays(dateNow(),2);else if(/amanh[aã]/.test(t))d=plusDays(dateNow(),1);else if(/\bhoje\b/.test(t))d=dateNow();if(!d){let m=t.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);if(m){let now=dateNow().split('-'),y=m[3]?+m[3]:+now[0];if(y<100)y+=2000;d=y+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0')}}if(!d){let days=[['domingo',0],['segunda',1],['terça',2],['terca',2],['quarta',3],['quinta',4],['sexta',5],['sábado',6],['sabado',6]],hit=days.find(x=>new RegExp('\\b'+x[0]+'(?:-feira)?\\b').test(t));if(hit){let today=new Date(dateNow()+'T12:00:00').getDay(),delta=(hit[1]-today+7)%7;if(!delta)delta=7;d=plusDays(dateNow(),delta)}}return d}
-function inferTime(s){let m=s.toLowerCase().match(/\b(?:às|as|por volta das|por volta de|pelas?)\s*(\d{1,2})(?:h|:)(\d{2})?\b/);if(!m)m=s.toLowerCase().match(/\b(\d{1,2})h(\d{2})?\b/);if(!m)return '';let h=+m[1],mi=+(m[2]||0);return h<24&&mi<60?String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0'):''}
-function cleanTitle(s){return s.replace(/^(jarvis[, ]*)/i,'').replace(/\b(hoje|amanh[ãa]|depois de amanh[ãa])\b/ig,'').replace(/\b(às|as)\s*\d{1,2}(?::\d{2}|h\d{0,2})?\b/ig,'').replace(/[,.!?]+$/,'').trim().slice(0,130)||s.slice(0,130)}
-function analyze(s){let p={source:s,type:inferType(s),cat:inferCategory(s),date:inferDate(s),time:inferTime(s),title:cleanTitle(s)};if(!p.type)return { ...p,question:'Como você quer registrar isso: tarefa, compromisso, lembrete, ideia ou registro pessoal?',choices:['Tarefa','Compromisso','Lembrete','Ideia','Registro pessoal']};if(p.type==='Compromisso'&&!p.date)return {...p,need:'date',question:'Qual é a data desse compromisso?'};if(p.type==='Compromisso'&&!p.time)return {...p,need:'time',question:'Qual é o horário? Se ainda não souber, diga “ainda não sei”.',choices:['Ainda não sei']};return p}
-function ask(p){pending=p;addMessage('jarvis',p.question,{choices:p.choices||null})}
-function processMessage(s){
- let explicit=/\b(anota|anotar|registre|registrar|salva|salvar|guarda|guardar|cria|criar|adicione|adicionar|coloca|colocar|agenda|agendar|lembrete|lembra-me|lembre-me)\b/i.test(s);
- if(!explicit){
-  if(/^(ol[aá]|oi|e a[ií]|bom dia|boa tarde|boa noite|tudo bem|como vai)[!?. ,]*$/i.test(s.trim())){
-   addMessage('jarvis','Olá! Estou aqui. Podemos conversar sobre qualquer assunto, explorar suas ideias ou trabalhar em algum projeto. O que você gostaria de conversar?');
-   return;
-  }
-  addMessage('jarvis','Entendi sua mensagem. Não vou criar registros sem você pedir. Ainda estou sem um modelo de IA conectado, então consigo reconhecer alguns comandos e saudações, mas ainda não consigo compreender conversas livres com a profundidade que você espera. A integração segura com uma IA gratuita é a próxima etapa.');
-  return;
- }
- let p=analyze(s);if(p.question){ask(p);return}pending=p;addMessage('jarvis','Identifiquei um pedido de registro. Confira os dados antes de salvar.',{preview:p})
-}
-function relatedThemes(p){let t=(p.source||'').toLowerCase(),a=[p.cat||'Outros'];if(/teclado|piano|música|musica|ouvido|cifra|acorde|louvor|cantar/.test(t))a.push('Música');if(/meta|objetivo|quero conseguir|pretendo|até o fim|até o final|no final do ano/.test(t))a.push('Objetivos');if(/deus|jesus|bíblia|igreja|culto|oração/.test(t))a.push('Fé');return [...new Set(a)]}
-function saveRecord(p){let r={id:'j'+Date.now()+'-'+Math.random().toString(36).slice(2,7),type:p.type,cat:p.cat||'Outros',themes:relatedThemes(p),date:p.date||'',time:p.time||'',title:p.title||p.source.slice(0,90),source:p.source,created:new Date().toISOString(),done:false};records.push(r);persist();pending=null;addMessage('jarvis','Registro salvo localmente. '+(connected?'Enviando ao GitHub para sincronizar com seu Obsidian…':'Conecte o GitHub pelo botão superior para sincronizar com o Obsidian.'));if(connected)pushRecord(r).then(()=>addMessage('jarvis','Sincronização concluída. O registro já está no repositório e ficará disponível no Obsidian após a sincronização do plugin Git.')).catch(e=>{setSyncState('connected','Falha ao sincronizar');addMessage('jarvis','O registro foi mantido neste aparelho, mas não consegui enviá-lo ao GitHub: '+e.message+'. Tente sincronizar novamente pelo botão superior.')})}
-function b64utf8(s){return btoa(unescape(encodeURIComponent(s)))}
-function fromB64(s){return decodeURIComponent(escape(atob(String(s||'').replace(/\s/g,''))))}
-function slug(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||'registro'}
-function categoryFolder(c){return slug(c)}
-function markdown(r){return '---\njarvis_id: "'+r.id+'"\ntipo: "'+r.type+'"\ntema: "'+r.cat+'"\ntemas: "'+(r.themes||[r.cat]).join('|')+'"\ndata: "'+r.date+'"\nhorario: "'+r.time+'"\ncriado_em: "'+r.created+'"\nstatus: "'+(r.done?'concluida':'aberta')+'"\n---\n\n# '+r.title.replace(/\n/g,' ')+'\n\n'+r.source+'\n'}
-function api(path,options={}){return fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+path,{...options,headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json',...(options.headers||{})}})}
-async function verifyToken(t){let old=token;token=t;try{let r=await api('');if(!r.ok)throw new Error(r.status===401?'Token inválido ou expirado.':r.status===404?'Repositório não encontrado ou token sem acesso.':'GitHub respondeu HTTP '+r.status+'.');let j=await r.json();if(!j.permissions||(!j.permissions.push&&!j.permissions.admin))throw new Error('O token não tem permissão de escrita neste repositório.');return true}catch(e){token=old;throw e}}
-async function pushRecord(r){if(!token)throw new Error('GitHub desconectado.');let d=(r.date||r.created.slice(0,10)),stamp=r.created.replace(/[-:TZ.]/g,'').slice(0,14),path=GH.root+'/'+categoryFolder(r.cat)+'/'+d+'/'+stamp+'-'+slug(r.title)+'-'+r.id+'.md';let response=await api('/contents/'+path.split('/').map(encodeURIComponent).join('/'),{method:'PUT',body:JSON.stringify({message:'JARVIS: registrar '+r.type+' - '+r.title.slice(0,60),content:b64utf8(markdown(r)),branch:GH.branch})});if(!response.ok){let j=await response.json().catch(()=>({}));throw new Error(j.message||'Falha ao gravar no GitHub (HTTP '+response.status+').')}r.githubPath=path;r.synced=true;persist()}
-function parseFrontmatter(md){let m=md.match(/^---\r?\n([\s\S]*?)\r?\n---/);if(!m)return null;let o={};m[1].split(/\r?\n/).forEach(line=>{let x=line.match(/^([a-z_]+):\s*"?([^"]*)"?\s*$/);if(x)o[x[1]]=x[2]});return o}
-function parseRecord(md,path){let f=parseFrontmatter(md);if(!f||!f.jarvis_id)return null;let body=md.replace(/^---\r?\n[\s\S]*?\r?\n---\s*/,'').trim(),title=(body.match(/^#\s+(.+)$/m)||[])[1]||'Registro JARVIS';let source=body.replace(/^#\s+.+\n*/,'').trim();return {id:f.jarvis_id,type:f.tipo||'Registro pessoal',cat:f.tema||'Outros',themes:(f.temas||f.tema||'Outros').split('|'),date:f.data||'',time:f.horario||'',created:f.criado_em||new Date().toISOString(),done:f.status==='concluida',title,source,githubPath:path,synced:true}}
-async function pullRecords(){if(!token)throw new Error('GitHub desconectado.');let res=await api('/git/trees/'+GH.branch+'?recursive=1');if(!res.ok)throw new Error('Não foi possível listar os registros do repositório (HTTP '+res.status+').');let tree=(await res.json()).tree||[],files=tree.filter(x=>x.type==='blob'&&x.path.startsWith(GH.root+'/')&&x.path.endsWith('.md'));let imported=[],remoteDeleted=[];for(let i=0;i<files.length;i+=5){let batch=files.slice(i,i+5);let part=await Promise.all(batch.map(async f=>{let b=await api('/git/blobs/'+f.sha);if(!b.ok)return null;let data=await b.json();try{let raw=fromB64(data.content);if(f.path.includes('/_deleted/')){let m=raw.match(/jarvis_deleted:\s*"([^"]+)/);if(m)remoteDeleted.push(m[1]);return null}return parseRecord(raw,f.path)}catch(e){return null}}));imported.push(...part.filter(Boolean))}deletedIds=[...new Set([...deletedIds,...remoteDeleted])];let blocked=new Set(deletedIds);let byId=new Map(records.map(r=>[r.id,r]));imported.forEach(r=>{if(!blocked.has(r.id))byId.set(r.id,r)});records=Array.from(byId.values()).sort((a,b)=>(a.created||'').localeCompare(b.created||''));persist();return imported.length}
-async function syncStoredContext(){for(const entry of contextSegments)await pushContextDocument(entry);return contextSegments.length}
-async function pullStoredContext(){let found=0;for(const cat of CATS){let path=GH.root+'/contexto/'+slug(cat)+'.md',res=await api('/contents/'+path.split('/').map(encodeURIComponent).join('/')+'?ref='+encodeURIComponent(GH.branch));if(!res.ok){if(res.status===404)continue;throw Error('Não foi possível recuperar contexto '+cat)}let j=await res.json(),raw=fromB64(j.content||''),body=raw.replace(/^# CONTEXTO INTEGRAL —[^\n]*\n\n/,'').trimEnd(),old=contextSegments.find(x=>x.cat===cat);if(!old||new Date(j.updated_at||0)>=new Date(old.updated||0)){contextSegments=contextSegments.filter(x=>x.cat!==cat);contextSegments.push({id:'context-'+slug(cat),cat,text:body,updated:j.updated_at||new Date().toISOString()});found++}}persist();return found}
-async function pushTombstone(id){let path=GH.root+'/_deleted/'+slug(id)+'.md',url='/contents/'+path.split('/').map(encodeURIComponent).join('/'),get=await api(url+'?ref='+encodeURIComponent(GH.branch)),content='---\njarvis_deleted: "'+id+'"\nexcluido_em: "'+new Date().toISOString()+'"\n---\n',body={message:'JARVIS: registrar exclusão '+id,content:b64utf8(content),branch:GH.branch};if(get.ok){let meta=await get.json();if(fromB64(meta.content||'').includes('jarvis_deleted: "'+id+'"'))return;body.sha=meta.sha}else if(get.status!==404)throw Error('Não foi possível consultar marcador de exclusão');let put=await api(url,{method:'PUT',body:JSON.stringify(body)});if(!put.ok)throw Error('Não foi possível gravar marcador de exclusão')}
-async function syncAll(){if(!token)throw new Error('GitHub desconectado.');busy=true;setSyncState('busy','Sincronizando');try{let remote=await pullRecords();await pullStoredContext();let pendingLocal=records.filter(r=>!r.synced&&!deletedIds.includes(r.id));for(let r of pendingLocal)await pushRecord(r);let contextFiles=await syncStoredContext();for(let id of deletedIds)await pushTombstone(id);connected=true;setSyncState('connected','Sincronizado');return {remote,pushed:pendingLocal.length,contextFiles}}finally{busy=false}}
-
-function contextMarkdown(cat,text){return '---\njarvis_context_id: "context-'+slug(cat)+'"\ncategoria: "'+cat+'"\nformato: "documento-integral"\natualizado_em: "'+new Date().toISOString()+'"\n---\n\n# CONTEXTO INTEGRAL — '+cat+'\n\n'+text+'\n'}
-function openContextManager(){let sel=$('contextCategory');sel.innerHTML=CATS.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');loadContextEditor();$('contextSyncStatus').textContent='Cada área será salva como um único documento integral, sem dividir o conteúdo.';$('contextManager').classList.add('show')}
-function loadContextEditor(){let cat=$('contextCategory').value||CATS[0],entry=contextSegments.find(x=>x.cat===cat);$('contextSource').value=entry?entry.text:''}
-async function pushContextDocument(entry){let path=GH.root+'/contexto/'+slug(entry.cat)+'.md',url='/contents/'+path.split('/').map(encodeURIComponent).join('/'),get=await api(url+'?ref='+encodeURIComponent(GH.branch)),body={message:'JARVIS: atualizar contexto integral '+entry.cat,content:b64utf8(contextMarkdown(entry.cat,entry.text)),branch:GH.branch};if(get.ok)body.sha=(await get.json()).sha;else if(get.status!==404)throw Error('Não foi possível consultar '+entry.cat);let put=await api(url,{method:'PUT',body:JSON.stringify(body)});if(!put.ok){let info=await put.json().catch(()=>({}));throw Error(info.message||'Falha ao sincronizar '+entry.cat)}}
-async function saveContextSegments(){let cat=$('contextCategory').value,raw=$('contextSource').value;if(!raw.trim()){showToast('O documento está vazio.');return}let old=contextSegments.find(x=>x.cat===cat),entry={id:old?.id||'context-'+slug(cat),cat,text:raw,updated:new Date().toISOString()};contextSegments=contextSegments.filter(x=>x.cat!==cat);contextSegments.push(entry);persist();let msg='Documento integral de '+cat+' salvo localmente, sem fragmentação.';if(connected&&token){try{await pushContextDocument(entry);msg+=' Sincronizado no GitHub.'}catch(e){msg+=' Falha na sincronização: '+e.message+' O conteúdo continua salvo neste aparelho.'}}$('contextSyncStatus').textContent=msg;showToast('Documento de contexto salvo.')}
-
-function exportBackup(){
- const payload={format:'CENTRAL_JARVIS_BACKUP_V1',exportedAt:new Date().toISOString(),records,messages,deletedIds,contextSegments};
- const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
- const url=URL.createObjectURL(blob),a=document.createElement('a');
- a.href=url;a.download='central-jarvis-backup-'+dateNow()+'.json';document.body.appendChild(a);a.click();a.remove();
- setTimeout(()=>URL.revokeObjectURL(url),1500);showToast('Backup exportado. Guarde o arquivo em local privado.');
-}
-async function importBackup(file){
- const data=JSON.parse(await file.text());
- if(data.format!=='CENTRAL_JARVIS_BACKUP_V1')throw Error('Arquivo de backup incompatível.');
- if(!window.confirm('Importar e mesclar este backup? Os registros existentes serão preservados.'))return;
- const byId=new Map(records.map(r=>[r.id,r]));
- (data.records||[]).forEach(r=>{if(r&&r.id&&!deletedIds.includes(r.id))byId.set(r.id,r)});
- records=[...byId.values()];
- deletedIds=[...new Set([...deletedIds,...(data.deletedIds||[])])];
- const byCat=new Map(contextSegments.map(c=>[c.cat,c]));
- (data.contextSegments||[]).forEach(c=>{if(c&&c.cat&&(!byCat.has(c.cat)||new Date(c.updated||0)>new Date(byCat.get(c.cat).updated||0)))byCat.set(c.cat,c)});
- contextSegments=[...byCat.values()];
- if(!(messages||[]).length)messages=data.messages||[];
- persist();renderMessages();renderModule(currentPage);showToast('Backup importado e mesclado localmente. Sincronize para enviar ao GitHub.');
-}
-
-function openConnect(){ $('connectOverlay').classList.add('show');$('ghToken').value='';setTimeout(()=>$('ghToken').focus(),100)}
-async function connect(){let t=$('ghToken').value.trim();if(!t){showToast('Cole seu token do GitHub para continuar.');return}let btn=$('connectNow');btn.disabled=true;btn.textContent='Conectando…';try{await verifyToken(t);token=t;if($('rememberToken').checked)localStorage.setItem('jarvis_github_token',t);else localStorage.removeItem('jarvis_github_token');connected=true;setSyncState('busy','Sincronizando');let result=await syncAll();$('connectOverlay').classList.remove('show');$('ghToken').value='';addMessage('jarvis','GitHub conectado. '+result.remote+' registro(s) recuperado(s), '+result.pushed+' enviado(s) e '+result.contextFiles+' documento(s) de contexto sincronizado(s). O Obsidian receberá os arquivos pela sincronização do repositório.');}catch(e){token='';connected=false;$('ghToken').value='';setSyncState('','GitHub');showToast(e.message)}finally{btn.disabled=false;btn.textContent='Conectar e sincronizar'}}
-async function restoreConnection(){let saved='';try{saved=localStorage.getItem('jarvis_github_token')||''}catch(e){}if(!saved)return;try{await verifyToken(saved);token=saved;connected=true;await syncAll();setSyncState('connected','Sincronizado')}catch(e){token='';connected=false;try{localStorage.removeItem('jarvis_github_token')}catch(_){}setSyncState('','Reconectar');showToast('A conexão salva não pôde ser restaurada: '+e.message)}}
-async function syncClick(){if(!connected){openConnect();return}if(busy)return;setSyncState('busy','Sincronizando');try{let r=await syncAll();addMessage('jarvis','Sincronização concluída. '+r.remote+' registro(s) recuperado(s) e '+r.pushed+' enviado(s).')}catch(e){setSyncState('connected','Tentar novamente');showToast('Falha na sincronização: '+e.message)}}
-
-let currentPage='chat';
-const PAGE_ITEMS=[['chat','◉','Chat'],['projetos','◇','Projetos'],['agenda','▦','Agenda'],['tarefas','✓','Tarefas'],['cerebro','✧','Cérebro'],['diario','▤','Diário']];
-function moduleNav(){$('bottomNav').innerHTML=PAGE_ITEMS.map(([id,ic,name])=>'<button type="button" class="navTab '+(currentPage===id?'active':'')+'" data-page="'+id+'"><span class="navGlyph">'+ic+'</span><span>'+name+'</span></button>').join('')}
-function setPage(page){currentPage=page;$('chatView').style.display=page==='chat'?'flex':'none';$('moduleScreen').classList.toggle('active',page!=='chat');$('moduleScreen').classList.toggle('brainScreen',page==='cerebro');if(page!=='chat')renderModule(page);moduleNav()}
-function recordsFor(cat){return records.filter(r=>r.cat===cat||(r.themes||[]).includes(cat))}
-function recordCard(r,withDone=false){return '<div class="moduleRow"><b>'+esc(r.title)+'</b><div class="moduleMeta">'+esc(r.type)+' · '+esc((r.themes||[r.cat]).join(' + '))+(r.date?' · '+formatDate(r.date):'')+(r.time?' às '+esc(r.time):'')+'</div>'+(withDone?'<div class="moduleActions"><button class="moduleAction" data-record-done="'+esc(r.id)+'">'+(r.done?'Reabrir':'Concluir')+'</button><button class="moduleAction delete" data-record-delete="'+esc(r.id)+'" aria-label="Excluir tarefa">Excluir</button></div>':'')+'</div>'}
-function renderProjects(){let a=records.filter(r=>r.type==='Ideia'||r.cat==='Empreendedorismo'||r.cat==='Objetivos'||(r.themes||[]).includes('Objetivos'));return '<h2 class="pageTitle">Projetos</h2><p class="pageSub">Ideias, metas e iniciativas que você compartilha no chat.</p><div class="moduleCard"><div class="statLine"><span class="statPill">'+a.length+' registros relacionados</span><span class="statPill">'+a.filter(r=>r.type==='Ideia').length+' ideias</span></div>'+(a.length?a.map(r=>recordCard(r)).join(''):'<div class="moduleEmpty">Quando você compartilhar uma ideia ou meta no chat, ela aparecerá aqui.</div>')+'</div>'}
-function renderTasks(){let a=records.filter(r=>r.type==='Tarefa'||r.type==='Lembrete');return '<h2 class="pageTitle">Tarefas</h2><p class="pageSub">Ações e lembretes organizados a partir das suas conversas.</p><div class="moduleCard"><div class="statLine"><span class="statPill">'+a.filter(r=>!r.done).length+' em aberto</span><span class="statPill">'+a.filter(r=>r.done).length+' concluídas</span></div>'+(a.length?a.map(r=>recordCard(r,true)).join(''):'<div class="moduleEmpty">Nenhuma tarefa registrada. Conte no chat o que precisa fazer.</div>')+'</div>'}
-function renderAgenda(){let out='<h2 class="pageTitle">Agenda</h2><p class="pageSub">Compromissos registrados e sua rotina fixa.</p>';for(let i=0;i<14;i++){let d=plusDays(dateNow(),i),w=new Date(d+'T12:00:00').getDay(),names=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'],fixed=[['14:00','Treino musical']];if(w===1||w===4)fixed.push(['19:30','Cursos']);if(w===3)fixed.push(['20:00','Célula Uma Nova História']);if(w===6)fixed.push(['08:00','Ajudar Dona Elza']);if(w===0)fixed.push(['09:30','Culto'],['17:00','Culto'],['19:30','Culto']);let ev=records.filter(r=>r.type==='Compromisso'&&r.date===d).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||''));out+='<div class="moduleCard"><h3>'+names[w]+' · '+formatDate(d)+(i===0?' · Hoje':i===1?' · Amanhã':'')+'</h3>'+fixed.map(x=>'<div class="moduleRow"><b>'+x[0]+' · '+x[1]+'</b><div class="moduleMeta">Rotina fixa</div></div>').join('')+ev.map(r=>recordCard(r)).join('')+(!fixed.length&&!ev.length?'<div class="moduleEmpty">Sem compromissos registrados.</div>':'')+'</div>'}return out}
-function renderDiary(){let a=records.filter(r=>r.type==='Registro pessoal').sort((x,y)=>(y.created||'').localeCompare(x.created||''));return '<h2 class="pageTitle">Diário</h2><p class="pageSub">Registros pessoais organizados por data.</p><div class="moduleCard">'+(a.length?a.map(r=>recordCard(r)).join(''):'<div class="moduleEmpty">Quando você compartilhar um registro pessoal no chat, ele aparecerá aqui.</div>')+'</div>'}
-const BRAIN_CATS=[
- {cat:'Pessoal',key:'personal',color:'#3298f4',pos:[105,180]},
- {cat:'Fé',key:'faith',color:'#9b68df',pos:[385,150]},
- {cat:'Música',key:'music',color:'#22c6c5',pos:[260,335]},
- {cat:'Estudos',key:'studies',color:'#527fe8',pos:[505,345]},
- {cat:'Futebol',key:'football',color:'#48bd82',pos:[90,510]},
- {cat:'Finanças',key:'finance',color:'#d6b64d',pos:[430,560]},
- {cat:'Empreendedorismo',key:'business',color:'#e18a5c',pos:[250,665]},
- {cat:'Objetivos',key:'goals',color:'#e17bb6',pos:[520,735]},
- {cat:'Diário',key:'diary',color:'#8d9ce9',pos:[160,805]},
- {cat:'Tecnologia',key:'technology',color:'#57d5ff',pos:[470,710]},
- {cat:'Outros',key:'other',color:'#a3b4c7',pos:[500,920]},
- {cat:'Família e relações',key:'family',color:'#ff8fa3',pos:[75,335]},
- {cat:'Inglês',key:'english',color:'#67a7ff',pos:[300,90]},
- {cat:'Marketing e afiliados',key:'marketing',color:'#ff9d57',pos:[535,500]},
- {cat:'CENTRAL JARVIS',key:'jarvis',color:'#48d9ff',pos:[300,900]},
- {cat:'Games',key:'games',color:'#a4e66b',pos:[70,700]},
- {cat:'Grand Aurora',key:'aurora',color:'#d2a7ff',pos:[300,770]},
- {cat:'Rotina e agenda',key:'routine',color:'#f5d76e',pos:[520,160]},
- {cat:'Preferências do assistente',key:'preferences',color:'#8de2d0',pos:[110,900]},
- {cat:'Instruções do JARVIS',key:'instructions',color:'#a8c5ff',pos:[300,40]},
- {cat:'Saúde e bem-estar',key:'wellbeing',color:'#ff83c5',pos:[40,550]}
-];
-function renderBrain(){
- let counts={};BRAIN_CATS.forEach(n=>{let docs=contextSegments.filter(x=>x.cat===n.cat),words=docs.reduce((sum,x)=>sum+(String(x.text||'').trim().match(/\S+/g)||[]).length,0);counts[n.cat]=recordsFor(n.cat).length+words/80});
- let edges={};records.forEach(r=>{let themes=[...new Set(r.themes||[r.cat||'Outros'])];for(let i=0;i<themes.length;i++)for(let j=i+1;j<themes.length;j++){let k=[themes[i],themes[j]].sort().join('|');edges[k]=(edges[k]||0)+1}});
- let known=new Set(BRAIN_CATS.map(n=>n.cat));
- let dataLinks=Object.entries(edges).filter(([k])=>k.split('|').every(x=>known.has(x)));
- let line=dataLinks.map(([k,w])=>{let [a,b]=k.split('|'),p=BRAIN_CATS.find(x=>x.cat===a).pos,q=BRAIN_CATS.find(x=>x.cat===b).pos;return '<line class="brainEdge '+(w>1?'strong':'')+'" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'"/>'}).join('');
- let mesh='';
- for(let i=0;i<BRAIN_CATS.length;i++){
-  let a=BRAIN_CATS[i].pos,b=BRAIN_CATS[(i+1)%BRAIN_CATS.length].pos,c=BRAIN_CATS[(i+4)%BRAIN_CATS.length].pos;
-  mesh+='<path class="brainMesh" d="M'+a[0]+' '+a[1]+' Q'+((a[0]+b[0])/2+((i%2)?42:-38))+' '+((a[1]+b[1])/2-32)+' '+b[0]+' '+b[1]+'"/>';
-  mesh+='<line class="brainMesh" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+c[0]+'" y2="'+c[1]+'"/>';
- }
- let stars='';for(let i=0;i<190;i++){let x=(i*97+31)%600,y=(i*173+47)%1000,rad=(i%11===0)?1.5:(i%3===0?.9:.55);stars+='<circle class="brainStar" cx="'+x+'" cy="'+y+'" r="'+rad+'" opacity="'+(.2+(i%6)*.12)+'"/>'}
- let micro='';for(let i=0;i<72;i++){let x=(i*137+43)%600,y=(i*211+79)%1000;micro+='<circle class="brainMicro" cx="'+x+'" cy="'+y+'" r="'+(i%9===0?1.5:.65)+'"/>'}
- let rings='<ellipse class="brainOrbit" cx="300" cy="500" rx="260" ry="420" transform="rotate(-17 300 500)"/><ellipse class="brainOrbit" cx="300" cy="500" rx="205" ry="350" transform="rotate(23 300 500)"/><ellipse class="brainOrbit" cx="300" cy="500" rx="145" ry="265" transform="rotate(-31 300 500)"/>';
- let center='<circle class="brainCoreRing" cx="300" cy="500" r="53"/><circle class="brainCoreRing" cx="300" cy="500" r="68" stroke-dasharray="1 8"/><circle class="brainCore" cx="300" cy="500" r="13"/>';
- let maxCount=Math.max(1,...Object.values(counts));let radiusFor=c=>{let relative=Math.log1p(Math.max(0,c))/Math.log1p(maxCount);return 7+59*Math.pow(relative,0.78)};
- let halos=BRAIN_CATS.map(n=>{let c=counts[n.cat],r=radiusFor(c);return '<circle class="brainHalo '+n.key+'" cx="'+n.pos[0]+'" cy="'+n.pos[1]+'" r="'+(r+7)+'"/>'}).join('');
- let dots=BRAIN_CATS.map(n=>{let c=counts[n.cat],r=radiusFor(c);return '<circle class="brainDot '+n.key+'" data-brain-cat="'+esc(n.cat)+'" cx="'+n.pos[0]+'" cy="'+n.pos[1]+'" r="'+r+'" tabindex="0" role="button" aria-label="Abrir tema '+esc(n.cat)+', '+c+' registros"/>'}).join('');
- let stats='<div class="brainHint"><span>MAPA NEURAL</span><i></i><span>'+BRAIN_CATS.length+' NÚCLEOS</span><i></i><span>'+records.length+' REGISTROS</span><small>Toque em um núcleo para explorar as informações</small></div>';
- return '<div class="brainCanvas">'+stats+'<svg class="brainSvg" viewBox="0 0 600 1000" preserveAspectRatio="xMidYMid slice" aria-label="Mapa neural interativo">'+stars+rings+mesh+line+micro+halos+center+dots+'</svg><div class="brainStatus"><span class="statusLed"></span> REDE DE CONHECIMENTO <b>ATIVA</b></div></div>';
-}
-function renderBrainDetail(cat){
- let n=BRAIN_CATS.find(x=>x.cat===cat);if(!n)return renderBrain();
- let a=recordsFor(cat).slice().sort((x,y)=>(y.created||'').localeCompare(x.created||''));let ctx=contextSegments.filter(x=>x.cat===cat);
- let body=a.length?a.map(r=>'<article class="brainInfoCard"><b>'+esc(r.title||'Registro sem título')+'</b><p>'+esc(r.source||'')+'</p><div class="moduleMeta">'+esc(r.type||'Registro')+(r.date?' · '+formatDate(r.date):'')+(r.time?' · '+esc(r.time):'')+'</div></article>').join(''):'<div class="moduleEmpty">Ainda não há informações registradas neste tema. Quando você conversar sobre '+esc(cat)+', os registros aparecerão aqui.</div>';
- if(ctx.length)body=ctx.map(x=>'<article class="brainInfoCard"><b>Contexto</b><p>'+esc(x.text)+'</p><div class="moduleMeta">Informação organizada</div></article>').join('')+body;return '<div class="brainDetail"><div class="brainDetailHead"><button class="brainBack" data-brain-back>← Mapa</button><span class="brainColor" style="background:'+n.color+';color:'+n.color+'"></span><div><div class="brainDetailTitle">'+esc(cat)+'</div><div class="brainDetailSub">'+a.length+' informação(ões) registradas</div></div></div>'+body+'</div>';
-}
-
-function renderModule(page){$('moduleScreen').innerHTML=page==='projetos'?renderProjects():page==='tarefas'?renderTasks():page==='agenda'?renderAgenda():page==='cerebro'?renderBrain():renderDiary()}
-
-function handleChoice(v){if(!pending)return;let p=pending;if(p.need==='date'){let d=inferDate(v);if(!d){addMessage('jarvis','Não identifiquei essa data. Escreva, por exemplo, 25/11, amanhã ou sexta-feira.');return}p.date=d;p.need='';if(!p.time){ask({...p,need:'time',question:'Qual é o horário? Se ainda não souber, diga “ainda não sei”.',choices:['Ainda não sei']});return}}else if(p.need==='time'){p.time=v==='Ainda não sei'?'':inferTime(v)||v;p.need=''}else if(p.choices){p.type=v;p.choices=null;if(v==='Compromisso'&&!p.date){ask({...p,need:'date',question:'Qual é a data desse compromisso?'});return}if(v==='Compromisso'&&!p.time){ask({...p,need:'time',question:'Qual é o horário? Se ainda não souber, diga “ainda não sei”.',choices:['Ainda não sei']});return}}pending=p;addMessage('jarvis','Confira o registro antes de salvar.',{preview:p})}
-$('resetChat').addEventListener('click',()=>{if(!window.confirm('Limpar o histórico desta conversa? Seus registros, tarefas, agenda e arquivos do GitHub/Obsidian serão preservados.'))return;messages=[{role:'jarvis',text:'Conversa reiniciada. Seus registros e dados continuam preservados. Como posso ajudar agora?',at:Date.now()}];pending=null;persist();renderMessages();$('chatInput').value='';$('chatInput').style.height='auto';showToast('Histórico do chat limpo. Seus dados foram preservados.')});
-$('sendButton').addEventListener('click',send);$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});$('chatInput').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,140)+'px'});
-function send(){let el=$('chatInput'),s=el.value.trim();if(!s)return;el.value='';el.style.height='auto';addMessage('user',s);if(pending){if(pending.need){handleChoice(s);return}if(pending.choices){let v=pending.choices.find(x=>x.toLowerCase()===s.toLowerCase());if(v){handleChoice(v);return}}}processMessage(s)}
-$('moduleScreen').addEventListener('keydown',e=>{let n=e.target.closest('[data-brain-cat]');if(n&&(e.key==='Enter'||e.key===' ')){e.preventDefault();$('moduleScreen').innerHTML=renderBrainDetail(n.dataset.brainCat)}});$('contextManagerOpen').addEventListener('click',openContextManager);
-$('contextClose').addEventListener('click',()=>$('contextManager').classList.remove('show'));
-$('contextCategory').addEventListener('change',loadContextEditor);
-$('contextSaveAll').addEventListener('click',saveContextSegments);$('backupExport').addEventListener('click',exportBackup);$('backupImport').addEventListener('click',()=>$('backupFile').click());$('backupFile').addEventListener('change',async e=>{let f=e.target.files&&e.target.files[0];if(!f)return;try{await importBackup(f)}catch(err){showToast('Falha ao importar backup: '+err.message)}e.target.value=''});
-$('weatherOpen').addEventListener('click',openWeather);$('weatherClose').addEventListener('click',()=>$('weatherOverlay').classList.remove('show'));$('weatherRefresh').addEventListener('click',()=>loadWeather(true));$('weatherOverlay').addEventListener('click',e=>{if(e.target===$('weatherOverlay'))$('weatherOverlay').classList.remove('show')});
-$('syncButton').addEventListener('click',syncClick);$('cancelConnect').addEventListener('click',()=>$('connectOverlay').classList.remove('show'));$('connectNow').addEventListener('click',connect);$('ghToken').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
-document.addEventListener('click',e=>{let choice=e.target.closest('[data-choice]');if(choice){addMessage('user',choice.dataset.choice);handleChoice(choice.dataset.choice);return}let a=e.target.closest('[data-action]');if(!a)return;let action=a.dataset.action;if(action==='confirm'&&pending){let p=pending;pending=null;saveRecord(p)}if(action==='cancel'){pending=null;addMessage('jarvis','Certo. Não salvei esse registro.')}if(action==='edit'&&pending){let s=pending.source;pending=null;addMessage('jarvis','Envie a mensagem corrigida. O registro anterior não foi salvo.');$('chatInput').value=s;$('chatInput').focus()}});
-async function deleteTask(id){
- let r=records.find(x=>x.id===id);if(!r)return;
- if(!window.confirm('Excluir esta tarefa permanentemente? A exclusão será sincronizada para não reaparecer depois.'))return;
- try{
-  if(r.githubPath&&token){let path=r.githubPath.split('/').map(encodeURIComponent).join('/'),get=await api('/contents/'+path+'?ref='+encodeURIComponent(GH.branch));if(get.ok){let meta=await get.json(),del=await api('/contents/'+path,{method:'DELETE',body:JSON.stringify({message:'JARVIS: excluir tarefa - '+String(r.title||'').slice(0,60),sha:meta.sha,branch:GH.branch})});if(!del.ok){let info=await del.json().catch(()=>({}));throw new Error(info.message||'O GitHub não confirmou a exclusão.')}}else if(get.status!==404){let info=await get.json().catch(()=>({}));throw new Error(info.message||'Não foi possível localizar a tarefa no GitHub.')}}
-  if(token)await pushTombstone(id);
-  if(!deletedIds.includes(id))deletedIds.push(id);records=records.filter(x=>x.id!==id);persist();renderModule('tarefas');showToast(token?'Tarefa excluída e exclusão sincronizada.':'Tarefa removida localmente. Conecte o GitHub para sincronizar a exclusão.');
- }catch(err){showToast('Não foi possível concluir a exclusão: '+err.message)}
-}
-document.addEventListener('click',e=>{let node=e.target.closest('[data-brain-cat]');if(node){$('moduleScreen').innerHTML=renderBrainDetail(node.dataset.brainCat);return}let back=e.target.closest('[data-brain-back]');if(back){$('moduleScreen').innerHTML=renderBrain();return}let pg=e.target.closest('[data-page]');if(pg){setPage(pg.dataset.page);return}let del=e.target.closest('[data-record-delete]');if(del){deleteTask(del.dataset.recordDelete);return}let done=e.target.closest('[data-record-done]');if(done){let r=records.find(x=>x.id===done.dataset.recordDone);if(r){r.done=!r.done;persist();renderModule('tarefas')}}});
-load();seedInitialContext();try{$('rememberToken').checked=!!localStorage.getItem('jarvis_github_token')}catch(e){}contextSegments=CATS.map(cat=>{let all=contextSegments.filter(x=>x.cat===cat);return all.length?{id:'context-'+slug(cat),cat,text:all.map(x=>x.text).join('\n\n'),updated:all.map(x=>x.updated||'').sort().pop()||new Date().toISOString()}:null}).filter(Boolean);persist();renderMessages();moduleNav();setSyncState('','GitHub');restoreConnection();loadWeather();window.addEventListener('pagehide',persist);window.addEventListener('beforeunload',persist);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist()});
+var TZ='America/Sao_Paulo',KEY='jarvis_v3_local',LAT=-19.827,LON=-43.936;
+var DAYS=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var D={records:[],messages:[]},pending=null,typing=false,speakOn=false,rec=null,W=null,view='chat';
+try{var raw=localStorage.getItem(KEY);if(raw){D=JSON.parse(raw)||D}speakOn=localStorage.getItem('jarvis_voice')==='1'}catch(e){}
+if(!Array.isArray(D.records))D.records=[];if(!Array.isArray(D.messages))D.messages=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+function tz(o,d){return new Intl.DateTimeFormat('pt-BR',Object.assign({timeZone:TZ},o)).format(d||new Date())}
+function today(){return new Intl.DateTimeFormat('sv-SE',{timeZone:TZ}).format(new Date())}
+function timeNow(){return tz({hour:'2-digit',minute:'2-digit',hour12:false})}
+function longDate(){return tz({weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+function plus(iso,n){var d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return new Intl.DateTimeFormat('sv-SE').format(d)}
+function fmt(iso){if(!iso)return 'sem data';var p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function dow(iso){return new Date(iso+'T12:00:00').getDay()}
+function greet(){var h=parseInt(tz({hour:'2-digit',hour12:false}),10)%24;return h<5?'Boa noite':h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}
+function isTask(r){return r.type==='Tarefa'||r.type==='Lembrete'}
+function fixed(iso){var w=dow(iso),f=[['14:00','Treino musical']];if(w===1||w===4)f.push(['19:30','Cursos (até 21:30)']);if(w===3)f.push(['20:00','Célula Uma Nova História']);if(w===6)f.push(['08:00','Ajudar Dona Elza']);if(w===0)f.push(['09:30','Culto'],['17:00','Culto'],['19:30','Culto']);return f}
+function dayItems(iso){return fixed(iso).concat(D.records.filter(function(r){return r.type==='Compromisso'&&r.date===iso}).map(function(r){return[r.time||'--:--',r.title]})).sort(function(a,b){return a[0].localeCompare(b[0])})}
+function dayText(iso,label){var tk=D.records.filter(function(r){return isTask(r)&&!r.done&&r.date===iso});return '▸ '+label+' — '+DAYS[dow(iso)]+', '+fmt(iso)+'\n'+dayItems(iso).map(function(x){return x[0]+' · '+x[1]}).join('\n')+(tk.length?'\nTarefas com data: '+tk.map(function(r){return r.title}).join('; '):'')}
+function tasksText(){var t=today(),a=D.records.filter(function(r){return isTask(r)&&!r.done}).sort(function(x,y){return(x.date||'9999').localeCompare(y.date||'9999')});if(!a.length)return 'Nenhuma tarefa em aberto registrada.';return '▸ TAREFAS EM ABERTO ('+a.length+')\n'+a.map(function(r){return '• '+r.title+(r.date?' — '+fmt(r.date)+(r.date<t?' (atrasada)':''):'')}).join('\n')}
+function n0(v,u){return isFinite(v)&&v!==null?Math.round(v)+(u||''):'--'}
+var WC={0:'céu limpo',1:'predominantemente limpo',2:'parcialmente nublado',3:'nublado',45:'neblina',48:'neblina',51:'garoa leve',53:'garoa',55:'garoa intensa',61:'chuva leve',63:'chuva moderada',65:'chuva forte',80:'pancadas leves',81:'pancadas moderadas',82:'pancadas fortes',95:'trovoada',96:'trovoada com granizo',99:'trovoada com granizo'};
+function weatherText(){if(!W)return 'Clima indisponível: não consegui consultar a Open-Meteo agora.';var c=W.current||{},h=W.hourly||{},d=W.daily||{},pr=(h.precipitation_probability||[]).filter(isFinite),mx=pr.length?Math.max.apply(null,pr):null;var s='Agora '+n0(c.temperature_2m,'°C')+' (sensação '+n0(c.apparent_temperature,'°C')+'), '+(WC[c.weather_code]||'condição não informada')+'. Mín '+n0((d.temperature_2m_min||[])[0],'°C')+' · Máx '+n0((d.temperature_2m_max||[])[0],'°C')+'.';if(mx!==null)s+='\nChuva: probabilidade máxima de '+mx+'% hoje.';if(c.weather_code>=95)s+='\nALERTA: trovoada registrada neste momento.';else if(mx>=50)s+='\nRecomendação: leve guarda-chuva.';return s+'\nFonte: Open-Meteo.'}
+function loadWeather(){var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort()},8000);var url='https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&current=temperature_2m,apparent_temperature,weather_code&hourly=precipitation_probability&daily=temperature_2m_max,temperature_2m_min&timezone=America%2FSao_Paulo&forecast_days=1';return fetch(url,ctl?{signal:ctl.signal}:{}).then(function(r){if(!r.ok)throw new Error('http');return r.json()}).then(function(d){W=d;var c=d.current||{};$('wchip').textContent=n0(c.temperature_2m,'°')}).catch(function(){W=null;$('wchip').textContent='--°'}).then(function(){clearTimeout(to)})}
+function notices(){var t=today(),w=dow(t),a=[];if(w===2)a.push('A célula Uma Nova História é amanhã, às 20h.');if(w===3)a.push('A célula Uma Nova História é hoje, às 20h.');if(w===5)a.push('Amanhã é dia de ajudar Dona Elza, às 8h.');if(w===6)a.push('Cultos amanhã: 9h30, 17h e 19h30.');var ov=D.records.filter(function(r){return isTask(r)&&!r.done&&r.date&&r.date<t}).length;if(ov)a.push(ov+' tarefa(s) atrasada(s).');return a.length?a.map(function(x){return '• '+x}).join('\n'):'Sem avisos para hoje.'}
+function stats(){var t=today(),tk=D.records.filter(isTask),op=tk.filter(function(r){return!r.done}),ov=op.filter(function(r){return r.date&&r.date<t}),ct={};D.records.forEach(function(r){var k=r.cat||'Outros';ct[k]=(ct[k]||0)+1});var cats=Object.keys(ct).map(function(k){return[k,ct[k]]}).sort(function(a,b){return b[1]-a[1]});var nx=D.records.filter(function(r){return r.type==='Compromisso'&&r.date>=t}).sort(function(a,b){return(a.date+(a.time||'')).localeCompare(b.date+(b.time||''))})[0];return{tk:tk,op:op,dn:tk.length-op.length,ov:ov,cats:cats,nx:nx}}
+function analysis(){var s=stats();return '▸ ANÁLISE DOS SEUS DADOS\nRegistros: '+D.records.length+'\nTarefas: '+s.op.length+' em aberto, '+s.dn+' concluídas'+(s.tk.length?' ('+Math.round(s.dn/s.tk.length*100)+'%)':'')+'\nAtrasadas: '+s.ov.length+(s.cats.length?'\nTemas mais ativos: '+s.cats.slice(0,3).map(function(c){return c[0]+' ('+c[1]+')'}).join(', '):'')+(s.nx?'\nPróximo compromisso: '+s.nx.title+' — '+fmt(s.nx.date)+(s.nx.time?' às '+s.nx.time:''):'')+'\n\n▸ RECOMENDAÇÃO\n'+(s.ov.length?'Priorizar as '+s.ov.length+' tarefa(s) atrasada(s) antes de novas demandas.':s.op.length?'Sem atrasos. Priorize as tarefas com data mais próxima.':D.records.length?'Sem pendências. A base ainda é pequena para identificar tendências.':'Ainda não há registros suficientes. Registre tarefas e compromissos para gerar análises.')}
+function help(){return '▸ COMANDOS\n• briefing / bom dia\n• minha agenda / agenda de amanhã\n• minhas tarefas\n• análise / prioridades\n• clima / vai chover?\n• que horas são / que dia é hoje\n• anota…, lembra-me…, agenda… (registro com confirmação)\nUso somente seus dados reais; nada é salvo sem a sua confirmação.'}
+function say(t){if(!speakOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(String(t).replace(/[▸•·—]/g,' ').slice(0,700));u.lang='pt-BR';speechSynthesis.speak(u)}catch(e){}}
+function add(role,text,prev){D.messages.push({role:role,text:text,prev:prev||null,at:Date.now()});if(D.messages.length>80)D.messages=D.messages.slice(-80);if(role==='j')say(text);save();renderMsgs()}
+function renderMsgs(){var h=D.messages.map(function(m){return '<article class="m '+(m.role==='u'?'u':'j')+'">'+esc(m.text)+(m.prev?prevHtml(m.prev):'')+'<time>'+tz({hour:'2-digit',minute:'2-digit'},new Date(m.at||Date.now()))+'</time></article>'}).join('');if(typing)h+='<article class="m j typing"><i></i><i></i><i></i></article>';$('msgs').innerHTML=h;$('scroll').scrollTop=$('scroll').scrollHeight}
+function prevHtml(p){return '<div class="prev"><div><span>Tipo</span><b>'+esc(p.type)+'</b></div><div><span>Assunto</span><b>'+esc(p.title)+'</b></div>'+(p.date?'<div><span>Data</span><b>'+fmt(p.date)+'</b></div>':'')+(p.time?'<div><span>Horário</span><b>'+esc(p.time)+'</b></div>':'')+'<div class="acts"><button class="btn p" data-act="ok">Confirmar e salvar</button><button class="btn" data-act="no">Cancelar</button></div></div>'}
+function inferDate(s){var t=s.toLowerCase();if(/depois de amanh[aã]/.test(t))return plus(today(),2);if(/amanh[aã]/.test(t))return plus(today(),1);if(/\bhoje\b/.test(t))return today();var m=t.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);if(m){var y=m[3]?+m[3]:+today().slice(0,4);if(y<100)y+=2000;return y+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2)}var ds=[['domingo',0],['segunda',1],['terça',2],['terca',2],['quarta',3],['quinta',4],['sexta',5],['sábado',6],['sabado',6]];for(var i=0;i<ds.length;i++){if(new RegExp(ds[i][0]+'(?:-feira)?').test(t)){var dl=(ds[i][1]-dow(today())+7)%7;return plus(today(),dl||7)}}return ''}
+function inferTime(s){var t=s.toLowerCase(),m=t.match(/(?:às|as|por volta das)\s*(\d{1,2})(?:h|:)(\d{2})?/)||t.match(/\b(\d{1,2})h(\d{2})?\b/);if(!m)return '';var h=+m[1],mi=+(m[2]||0);return h<24&&mi<60?('0'+h).slice(-2)+':'+('0'+mi).slice(-2):''}
+var CATS=[['Fé',/deus|jesus|bíblia|igreja|culto|oração|célula/],['Música',/teclado|piano|música|cifra|acorde|ensaio|louvor/],['Futebol',/atlético|galo|futebol|jogo/],['Finanças',/dinheiro|finanças|invest|poupança|orçamento/],['Estudos',/estud|escola|prova|curso|aula|matemática|física|inglês/],['Tecnologia',/código|aplicativo|app\b|github|obsidian|programa/],['Empreendedorismo',/marmitex|instagram|afiliado|venda|cliente|negócio|marketing/]];
+function cat(s){var t=s.toLowerCase();for(var i=0;i<CATS.length;i++)if(CATS[i][1].test(t))return CATS[i][0];return 'Outros'}
+function parse(s){var t=s.toLowerCase(),date=inferDate(s),time=inferTime(s),type=/lembr/.test(t)?'Lembrete':(date&&time)||/reuni|consulta|compromisso|encontro|culto|c[eé]lula/.test(t)?'Compromisso':'Tarefa';var title=s.replace(/^(jarvis[, ]*)?(anota|anotar|registre|registrar|salva|salvar|guarda|guardar|cria|criar|adicione|adicionar|agendar|agenda|lembra-me|lembre-me|lembrete)[:,]?\s*/i,'').replace(/(^|\s)(hoje|amanh[ãa]|depois de amanh[ãa])(?=[\s.,!?]|$)/ig,' ').replace(/(^|\s)(às|as)\s*\d{1,2}(:\d{2}|h\d{0,2})?(?=[\s.,!?]|$)/ig,' ').replace(/\s+/g,' ').replace(/[,.!?\s]+$/,'').trim();return{type:type,date:date,time:time,title:(title||s).slice(0,120),source:s}}
+function commit(p){D.records.push({id:'j'+Date.now()+Math.random().toString(36).slice(2,6),type:p.type,cat:cat(p.source||p.title),themes:[cat(p.source||p.title)],date:p.date||'',time:p.time||'',title:p.title,source:p.source||p.title,created:new Date().toISOString(),done:false});save()}
+function ask(p){pending=p;if(p.type==='Compromisso'&&!p.date){p.need='date';add('j','Qual é a data desse compromisso? (ex.: 25/11, amanhã, sexta-feira)');return}p.need='';add('j','Confira o registro antes de salvar.',p)}
+function think(on){typing=on;renderMsgs()}
+function briefing(){think(true);loadWeather().then(function(){think(false);var t=today();add('j',greet()+', senhor Rafael.\nHoje é '+longDate()+', e são '+timeNow()+' em Belo Horizonte.\nSegue seu briefing diário.\n\n▸ CLIMA\n'+weatherText()+'\n\n'+dayText(t,'HOJE')+'\n\n'+dayText(plus(t,1),'AMANHÃ')+'\n\n▸ AVISOS\n'+notices())})}
+function clima(){think(true);loadWeather().then(function(){think(false);add('j',weatherText())})}
+var CREATE=/\b(anota|anotar|registre|registrar|salva|salvar|guarda|guardar|cria|criar|adicione|adicionar|agendar|lembrete|lembra-me|lembre-me)\b/i;
+function intel(s){var t=s.toLowerCase().trim(),r=function(x){add('j',x);return true};
+if(/^(briefing|bom dia|boa tarde|boa noite)\b/.test(t)){briefing();return true}
+if(/\b(que horas|horas são|hora atual)\b/.test(t))return r('São '+timeNow()+' em Belo Horizonte.');
+if(/\b(que dia|data de hoje|dia da semana|qual a data)\b/.test(t))return r('Hoje é '+longDate()+'.');
+if(/\b(clima|chuva|chover|temperatura|guarda-chuva|previs[aã]o)(?![a-zà-ú])/.test(t)){clima();return true}
+if(/\b(an[aá]lise|diagn[oó]stico|resumo executivo|relat[oó]rio|prioridades)\b/.test(t))return r(analysis());
+if(/\b(minhas tarefas|quais tarefas|tarefas pendentes|tarefas abertas|pend[eê]ncias)\b/.test(t))return r(tasksText());
+if(/(minha agenda|agenda d[eoa]|meus compromissos|compromissos d|o que (eu )?tenho|organize meu dia)/.test(t)){var h=today();if(/amanh[aã]/.test(t))return r(dayText(plus(h,1),'AMANHÃ'));return r(dayText(h,'HOJE')+'\n\n'+dayText(plus(h,1),'AMANHÃ'))}
+if(/\b(ajuda|comandos|o que (você|voce) (faz|sabe))\b/.test(t))return r(help());
+return false}
+function send(){var el=$('inp'),s=el.value.trim();if(!s)return;el.value='';el.style.height='auto';add('u',s);
+if(pending&&pending.need==='date'){if(/^(cancela|cancelar|n[ãa]o)$/i.test(s)){pending=null;add('j','Certo. Não salvei esse registro.');return}var d=inferDate(s);if(!d){add('j','Não identifiquei a data. Escreva, por exemplo, 25/11, amanhã ou sexta-feira.');return}pending.date=d;ask(pending);return}
+if(pending){if(/^(sim|confirmo|confirmar|ok|salvar)$/i.test(s)){commit(pending);pending=null;add('j','Registro salvo neste aparelho.');return}if(/^(n[ãa]o|cancela|cancelar)$/i.test(s)){pending=null;add('j','Certo. Não salvei esse registro.');return}}
+if(!CREATE.test(s)&&intel(s))return;
+if(CREATE.test(s)||/^agenda\b/i.test(s)){ask(parse(s));return}
+if(/^(ol[aá]|oi|e a[ií])[!?. ]*$/i.test(s)){add('j','Olá, senhor. Sistemas online. Digite “briefing” ou “ajuda” para ver o que posso fazer.');return}
+add('j','Entendi, mas ainda não tenho um modelo de IA conectado para conversa livre. Consigo: briefing, agenda, tarefas, clima, análise e registros. Digite “ajuda” para ver os comandos.')}
+function page(id,html){$(id).innerHTML=html}
+function rAgenda(){var h='<h2>Agenda</h2><p class="sub">Rotina fixa e compromissos registrados — próximos 7 dias.</p>';for(var i=0;i<7;i++){var d=plus(today(),i);h+='<div class="card"><h3>'+DAYS[dow(d)]+' · '+fmt(d)+(i===0?' · Hoje':i===1?' · Amanhã':'')+'</h3>'+dayItems(d).map(function(x){return '<div class="row"><b>'+esc(x[0])+'</b> · '+esc(x[1])+'</div>'}).join('')+'</div>'}page('agenda',h)}
+function rTasks(){var a=D.records.filter(isTask).sort(function(x,y){return(x.done-y.done)||(x.date||'9999').localeCompare(y.date||'9999')}),s=stats();page('tarefas','<h2>Tarefas</h2><p class="sub">Ações e lembretes registrados.</p><div class="form"><input id="tt" placeholder="Nova tarefa" style="flex:1"><input id="td" type="date"><button class="btn p" id="ta" style="flex:0 0 auto">+</button></div><div class="pills"><span class="pill">'+s.op.length+' em aberto</span><span class="pill">'+s.dn+' concluídas</span></div><div class="card">'+(a.length?a.map(function(r){return '<div class="row"><b class="'+(r.done?'done':'')+'">'+esc(r.title)+'</b><div class="meta">'+esc(r.type)+(r.date?' · '+fmt(r.date):'')+(r.time?' às '+esc(r.time):'')+'</div><div class="acts"><button class="btn" data-done="'+esc(r.id)+'">'+(r.done?'Reabrir':'Concluir')+'</button><button class="btn" data-del="'+esc(r.id)+'">Excluir</button></div></div>'}).join(''):'<div class="meta">Nenhuma tarefa registrada.</div>')+'</div>')}
+function rPanel(){var s=stats(),mx=s.cats.length?s.cats[0][1]:1;page('painel','<h2>Painel</h2><p class="sub">Análise dos seus dados reais.</p><div class="pills"><span class="pill">'+D.records.length+' registros</span><span class="pill">'+s.op.length+' em aberto</span><span class="pill">'+s.dn+' concluídas</span><span class="pill">'+s.ov.length+' atrasadas</span></div><div class="card"><h3>Registros por tema</h3>'+(s.cats.length?s.cats.slice(0,8).map(function(c){return '<div class="bar"><span>'+esc(c[0])+'</span><em><i style="width:'+Math.round(c[1]/mx*100)+'%"></i></em><b>'+c[1]+'</b></div>'}).join(''):'<div class="meta">Sem dados ainda. Registre algo no chat.</div>')+'</div><div class="card"><h3>Leitura do JARVIS</h3><div class="row" style="white-space:pre-wrap">'+esc(analysis())+'</div></div>')}
+function setView(v){view=v;['chat','agenda','tarefas','painel'].forEach(function(x){$('v-'+x).classList.toggle('on',x===v)});if(v==='agenda')rAgenda();if(v==='tarefas')rTasks();if(v==='painel')rPanel();nav()}
+function nav(){$('nav').innerHTML=[['chat','◉','Chat'],['agenda','▦','Agenda'],['tarefas','✓','Tarefas'],['painel','✧','Painel']].map(function(x){return '<button type="button" data-nav="'+x[0]+'" class="'+(view===x[0]?'on':'')+'"><span>'+x[1]+'</span>'+x[2]+'</button>'}).join('')}
+function hud(){$('hud').textContent=tz({weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','').toUpperCase()+' · '+timeNow()+' · '+(navigator.onLine?'ONLINE':'OFFLINE')}
+function mic(){var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;if(rec){rec.stop();return}rec=new SR();rec.lang='pt-BR';rec.interimResults=false;rec.onresult=function(e){$('inp').value=e.results[0][0].transcript;send()};rec.onend=function(){rec=null;$('mic').classList.remove('on')};rec.onerror=function(){};$('mic').classList.add('on');try{rec.start()}catch(e){rec=null;$('mic').classList.remove('on')}}
+document.addEventListener('click',function(e){var t=e.target,b;
+if((b=t.closest('[data-nav]'))){setView(b.dataset.nav);return}
+if((b=t.closest('[data-act]'))){if(!pending)return;if(b.dataset.act==='ok'){commit(pending);pending=null;add('j','Registro salvo neste aparelho.')}else{pending=null;add('j','Certo. Não salvei esse registro.')}return}
+if((b=t.closest('[data-done]'))){var r=D.records.filter(function(x){return x.id===b.dataset.done})[0];if(r){r.done=!r.done;save();rTasks()}return}
+if((b=t.closest('[data-del]'))){if(confirm('Excluir esta tarefa?')){D.records=D.records.filter(function(x){return x.id!==b.dataset.del});save();rTasks()}return}
+if(t.id==='ta'){var v=$('tt').value.trim();if(v){commit({type:'Tarefa',title:v,source:v,date:$('td').value});rTasks()}return}
+if(t.id==='wchip'){clima();setView('chat')}});
+$('send').addEventListener('click',send);
+$('inp').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+$('inp').addEventListener('input',function(e){e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,120)+'px'});
+$('quick').innerHTML=[['☀ Briefing','briefing'],['▦ Agenda','minha agenda'],['✓ Tarefas','minhas tarefas'],['☔ Clima','clima'],['✧ Análise','análise'],['? Ajuda','ajuda']].map(function(x){return '<button type="button" data-q="'+x[1]+'">'+x[0]+'</button>'}).join('')+'<button type="button" id="vb" class="'+(speakOn?'on':'')+'">'+(speakOn?'🔊 Voz ligada':'🔇 Voz')+'</button>';
+$('quick').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.id==='vb'){speakOn=!speakOn;try{localStorage.setItem('jarvis_voice',speakOn?'1':'0')}catch(x){}b.textContent=speakOn?'🔊 Voz ligada':'🔇 Voz';b.classList.toggle('on',speakOn);if(!speakOn&&window.speechSynthesis)speechSynthesis.cancel();return}$('inp').value=b.dataset.q;send()});
+if(window.SpeechRecognition||window.webkitSpeechRecognition){$('mic').style.display='block';$('mic').addEventListener('click',mic)}
+if(!D.messages.length)D.messages.push({role:'j',text:greet()+', senhor Rafael. Sistemas online. Digite “briefing” ou “ajuda” para começar.',at:Date.now()});
+nav();renderMsgs();hud();setInterval(hud,30000);loadWeather();
+window.addEventListener('pagehide',save);
 })();
 </script>
 </body>
