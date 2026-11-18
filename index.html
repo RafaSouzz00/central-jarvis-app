@@ -96,12 +96,25 @@ main{padding-bottom:0}
 
 .contextSegment{border:1px solid #3b6b98;background:#102640;border-radius:12px;padding:11px;margin:9px 0}.contextSegment textarea{width:100%;min-height:65px;background:#091a30;color:#fff;border:1px solid #456b8e;border-radius:8px;padding:9px;line-height:1.45}.contextSegment select{width:100%;margin-top:8px;background:#102640;color:#fff;border:1px solid #456b8e;border-radius:8px;padding:9px}.contextSegment .segmentHead{display:flex;justify-content:space-between;color:#a9bfd8;font-size:11px;margin-bottom:7px}
 .contextCategory{width:100%;background:#102640;color:#fff;border:1px solid #456b8e;border-radius:9px;padding:11px;margin:6px 0 12px}.rememberToken{display:flex;align-items:center;gap:8px;margin:10px 0;color:#d8eaff;font-size:13px}.rememberToken input{width:18px;height:18px;accent-color:#38aaff}
+
+.weatherChip{display:flex;align-items:center;gap:7px;border:1px solid #3b7098;background:linear-gradient(135deg,#123657,#0d2742);color:#f4fbff;border-radius:18px;padding:7px 9px;min-width:68px;justify-content:center;box-shadow:0 0 15px #38aaff12;font-weight:750;font-size:13px;white-space:nowrap}
+.weatherChip:active{background:#194a70}.weatherRain{display:flex;align-items:center;gap:3px;color:#9ddcff;font-size:10px;font-weight:650}.weatherRain span:first-child{font-size:12px}
+.weatherChip.loading{opacity:.7}.weatherChip.error{border-color:#8a6470}
+.weatherDialogGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.weatherMetric{background:#102943;border:1px solid #294d6d;border-radius:11px;padding:10px}
+.weatherMetric small{display:block;color:#a9bfd8;font-size:10px}.weatherMetric b{font-size:16px;color:#f6fbff}
+.weatherCondition{font-size:14px;color:#d9efff;margin:6px 0 12px}.weatherUpdated{font-size:10px;color:#8fa9c3;margin-top:8px}
+@media(max-width:390px){.brand{gap:7px}.brand strong{font-size:12px;letter-spacing:.09em}.brand small{font-size:9px}.orb{width:32px;height:32px}.weatherChip{gap:5px;padding:6px 7px;font-size:12px}.sync{padding:6px 8px;font-size:10px}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
  <div class="brand"><div class="orb">J</div><div><strong>CENTRAL JARVIS</strong><small>ASSISTENTE PESSOAL</small></div></div>
+ <button class="weatherChip" id="weatherOpen" type="button" aria-label="Abrir detalhes do clima de Belo Horizonte">
+  <span id="weatherTemp">--°</span><span class="weatherRain"><span aria-hidden="true">☔</span><span id="weatherRainPct">--%</span></span>
+ </button>
  <button class="sync" id="syncButton" type="button" title="Sincronização com GitHub e Obsidian"><i class="lamp"></i><span id="syncLabel">GitHub</span></button>
 </header>
 <main>
@@ -117,6 +130,25 @@ main{padding-bottom:0}
 </main>
 <nav class="bottomNav" id="bottomNav" aria-label="Navegação principal"></nav>
 </div>
+<div class="overlay" id="weatherOverlay" role="dialog" aria-modal="true" aria-labelledby="weatherTitle">
+ <div class="dialog">
+  <h2 id="weatherTitle">Clima em Jardim Guanabara</h2>
+  <p id="weatherCondition" class="weatherCondition">Consultando as condições atuais…</p>
+  <div class="weatherDialogGrid">
+   <div class="weatherMetric"><small>Temperatura atual</small><b id="weatherDetailTemp">--</b></div>
+   <div class="weatherMetric"><small>Chance de chuva agora</small><b id="weatherDetailRain">--</b></div>
+   <div class="weatherMetric"><small>Mínima de hoje</small><b id="weatherMin">--</b></div>
+   <div class="weatherMetric"><small>Máxima de hoje</small><b id="weatherMax">--</b></div>
+   <div class="weatherMetric"><small>Sensação térmica</small><b id="weatherFeels">--</b></div>
+   <div class="weatherMetric"><small>Umidade</small><b id="weatherHumidity">--</b></div>
+   <div class="weatherMetric"><small>Vento</small><b id="weatherWind">--</b></div>
+   <div class="weatherMetric"><small>Chuva prevista hoje</small><b id="weatherRainTotal">--</b></div>
+  </div>
+  <div class="weatherUpdated" id="weatherUpdated">Dados meteorológicos via Open-Meteo.</div>
+  <div class="actions"><button class="btn secondary" id="weatherClose">Fechar</button><button class="btn primary" id="weatherRefresh">Atualizar</button></div>
+ </div>
+</div>
+
 <div class="overlay" id="connectOverlay" role="dialog" aria-modal="true" aria-labelledby="connectTitle">
  <div class="dialog">
   <h2 id="connectTitle">Conectar ao GitHub</h2>
@@ -182,6 +214,52 @@ function formatDate(iso){if(!iso)return 'Não definida';let [y,m,d]=iso.split('-
 function persist(){try{const key='jarvis_v3_local',backupKey='jarvis_v3_local_backup';const previous=localStorage.getItem(key);if(previous)localStorage.setItem(backupKey,previous);const snapshot=JSON.stringify({records,messages,deletedIds,contextSegments,savedAt:new Date().toISOString()});localStorage.setItem(key,snapshot);localStorage.setItem('jarvis_v3_local_last_saved',new Date().toISOString())}catch(e){showToast('Não foi possível salvar localmente neste aparelho. Verifique o espaço disponível do navegador.')}}
 function load(){try{localStorage.removeItem('cj_cfg')}catch(e){}try{let raw=localStorage.getItem('jarvis_v3_local');let d=JSON.parse(raw||'{}');if(!raw||(!d.records&&!d.contextSegments)){let backup=JSON.parse(localStorage.getItem('jarvis_v3_local_backup')||'{}');if(backup.records||backup.contextSegments)d=backup}records=d.records||[];messages=d.messages||[];deletedIds=d.deletedIds||[];contextSegments=d.contextSegments||[]}catch(e){try{let backup=JSON.parse(localStorage.getItem('jarvis_v3_local_backup')||'{}');records=backup.records||[];messages=backup.messages||[];deletedIds=backup.deletedIds||[];contextSegments=backup.contextSegments||[]}catch(_){}}try{let old=JSON.parse(localStorage.getItem('jarvis_v2')||'null');if(old){let add=[];for(let x of (old.tasks||[]))add.push({id:x.id||'old-'+Date.now()+'-'+Math.random(),type:x.type||'Tarefa',cat:x.cat||'Outros',date:x.due||x.date||'',time:x.time||'',title:x.title||'Registro anterior',source:x.text||x.title||'',created:x.created||new Date().toISOString(),done:!!x.done});for(let x of (old.events||[]))add.push({...x,id:x.id||'old-'+Date.now()+'-'+Math.random(),type:'Compromisso',cat:x.cat||'Outros',title:x.title||'Compromisso',source:x.text||x.title||'',created:x.created||new Date().toISOString()});for(let x of (old.ideas||[]))add.push({...x,type:'Ideia',source:x.text||x.title||'',created:x.created||new Date().toISOString()});for(let x of (old.diary||[]))add.push({...x,type:'Registro pessoal',source:x.text||x.title||'',created:x.created||new Date().toISOString()});let ids=new Set(records.map(x=>x.id));add.forEach(x=>{if(!ids.has(x.id)){x.synced=false;records.push(x)}});if(!messages.length)messages=old.messages||[];persist();localStorage.setItem('jarvis_v2_migrated','1')}}catch(e){}try{let legacy=JSON.parse(localStorage.getItem('cj_tasks')||'[]');let ids=new Set(records.map(x=>x.id));legacy.forEach(x=>{let id=x.id||'legacy-'+Date.now()+'-'+Math.random();if(!ids.has(id)){records.push({id,type:'Tarefa',cat:x.cat||'Outros',date:x.due||'',time:x.time||'',title:x.title||'Tarefa anterior',source:x.text||x.title||'',created:x.created||new Date().toISOString(),done:!!x.done,synced:false});ids.add(id)}});persist()}catch(e){}if(!messages.length){messages.push({role:'jarvis',text:'Olá. Este é seu espaço de conversa. Não vou transformar mensagens em registros sem um pedido explícito. Posso organizar informações e salvar documentos completos por categoria.'})}}
 function showToast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3800)}
+
+const WEATHER={lat:-19.827,lon:-43.936,place:'Jardim Guanabara, Belo Horizonte'};
+let weatherLast=null,weatherBusy=false;
+function weatherDescription(code){
+ const map={0:'Céu limpo',1:'Predominantemente limpo',2:'Parcialmente nublado',3:'Nublado',45:'Neblina',48:'Neblina com geada',51:'Garoa leve',53:'Garoa moderada',55:'Garoa intensa',56:'Garoa congelante leve',57:'Garoa congelante intensa',61:'Chuva leve',63:'Chuva moderada',65:'Chuva forte',66:'Chuva congelante leve',67:'Chuva congelante forte',71:'Neve leve',73:'Neve moderada',75:'Neve forte',77:'Grãos de neve',80:'Pancadas leves',81:'Pancadas moderadas',82:'Pancadas fortes',85:'Pancadas de neve leves',86:'Pancadas de neve fortes',95:'Trovoada',96:'Trovoada com granizo leve',99:'Trovoada com granizo forte'};
+ return map[code]||'Condição não informada';
+}
+function fmtNum(v,unit=''){return Number.isFinite(Number(v))?Math.round(Number(v))+unit:'--'}
+function renderWeather(data){
+ const c=data.current||{},h=data.hourly||{},d=data.daily||{};
+ const now=c.time?new Date(c.time).getTime():Date.now();
+ let idx=0,best=Infinity;
+ (h.time||[]).forEach((t,i)=>{let delta=Math.abs(new Date(t).getTime()-now);if(delta<best){best=delta;idx=i}});
+ const rain=(h.precipitation_probability||[])[idx];
+ $('weatherTemp').textContent=fmtNum(c.temperature_2m,'°');
+ $('weatherRainPct').textContent=fmtNum(rain,'%');
+ $('weatherDetailTemp').textContent=fmtNum(c.temperature_2m,' °C');
+ $('weatherDetailRain').textContent=fmtNum(rain,'%');
+ $('weatherMin').textContent=fmtNum((d.temperature_2m_min||[])[0],' °C');
+ $('weatherMax').textContent=fmtNum((d.temperature_2m_max||[])[0],' °C');
+ $('weatherFeels').textContent=fmtNum(c.apparent_temperature,' °C');
+ $('weatherHumidity').textContent=fmtNum(c.relative_humidity_2m,'%');
+ $('weatherWind').textContent=fmtNum(c.wind_speed_10m,' km/h');
+ $('weatherRainTotal').textContent=fmtNum((d.precipitation_sum||[])[0],' mm');
+ $('weatherCondition').textContent=weatherDescription(c.weather_code);
+ $('weatherUpdated').textContent='Atualizado: '+(c.time?new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(c.time)):'horário indisponível')+' · Fonte: Open-Meteo';
+ $('weatherOpen').classList.remove('loading','error');weatherLast=data;
+}
+async function loadWeather(force=false){
+ if(weatherBusy)return;
+ if(!force){try{let cached=JSON.parse(localStorage.getItem('jarvis_weather_cache')||'null');if(cached&&Date.now()-cached.savedAt<15*60*1000){renderWeather(cached.data);return}}catch(e){}}
+ weatherBusy=true;$('weatherOpen').classList.add('loading');
+ const url='https://api.open-meteo.com/v1/forecast?latitude='+WEATHER.lat+'&longitude='+WEATHER.lon+'&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=1';
+ try{
+  const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();renderWeather(data);
+  try{localStorage.setItem('jarvis_weather_cache',JSON.stringify({savedAt:Date.now(),data}))}catch(e){}
+ }catch(e){
+  $('weatherOpen').classList.remove('loading');$('weatherOpen').classList.add('error');
+  $('weatherTemp').textContent='--°';$('weatherRainPct').textContent='--%';
+  $('weatherCondition').textContent='Não foi possível atualizar o clima. Verifique sua conexão e tente novamente.';
+  $('weatherUpdated').textContent='A previsão não está disponível no momento.';
+ }finally{weatherBusy=false}
+}
+function openWeather(){ $('weatherOverlay').classList.add('show');if(!weatherLast)loadWeather(true)}
+
 function setSyncState(state,label){let b=$('syncButton');b.classList.toggle('connected',state==='connected');b.classList.toggle('busy',state==='busy');$('syncLabel').textContent=label}
 function addMessage(role,text,extra){messages.push({role,text,extra:extra||null,at:Date.now()});if(messages.length>100)messages=messages.slice(-100);persist();renderMessages()}
 function renderMessages(){let html='';messages.forEach(m=>{html+='<article class="message '+(m.role==='user'?'user':'jarvis')+'">'+esc(m.text)+(m.extra?.preview?renderPreview(m.extra.preview):'')+(m.extra?.choices?'<div class="choices">'+m.extra.choices.map(v=>'<button class="choice" data-choice="'+esc(v)+'">'+esc(v)+'</button>').join('')+'</div>':'')+'<time>'+new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(m.at||Date.now()))+'</time></article>'});$('messages').innerHTML=html;$('messages').scrollTop=$('messages').scrollHeight}
@@ -193,7 +271,18 @@ function inferTime(s){let m=s.toLowerCase().match(/\b(?:às|as|por volta das|por
 function cleanTitle(s){return s.replace(/^(jarvis[, ]*)/i,'').replace(/\b(hoje|amanh[ãa]|depois de amanh[ãa])\b/ig,'').replace(/\b(às|as)\s*\d{1,2}(?::\d{2}|h\d{0,2})?\b/ig,'').replace(/[,.!?]+$/,'').trim().slice(0,130)||s.slice(0,130)}
 function analyze(s){let p={source:s,type:inferType(s),cat:inferCategory(s),date:inferDate(s),time:inferTime(s),title:cleanTitle(s)};if(!p.type)return { ...p,question:'Como você quer registrar isso: tarefa, compromisso, lembrete, ideia ou registro pessoal?',choices:['Tarefa','Compromisso','Lembrete','Ideia','Registro pessoal']};if(p.type==='Compromisso'&&!p.date)return {...p,need:'date',question:'Qual é a data desse compromisso?'};if(p.type==='Compromisso'&&!p.time)return {...p,need:'time',question:'Qual é o horário? Se ainda não souber, diga “ainda não sei”.',choices:['Ainda não sei']};return p}
 function ask(p){pending=p;addMessage('jarvis',p.question,{choices:p.choices||null})}
-function processMessage(s){let explicit=/\\b(anota|anotar|registre|registrar|salva|salvar|guarda|guardar|cria|criar|adicione|adicionar|coloca|colocar|agenda|agendar|lembrete|lembra-me|lembre-me)\\b/i.test(s);if(!explicit){addMessage('jarvis','Recebi sua mensagem. Esta versão ainda não tem um modelo de IA conectado, então não consigo conversar com compreensão ampla nem executar qualquer pedido arbitrário. Não vou criar registros sem você pedir. Para registros, use um comando explícito; para conversa inteligente, precisamos integrar um modelo de linguagem.');return}let p=analyze(s);if(p.question){ask(p);return}pending=p;addMessage('jarvis','Identifiquei um pedido de registro. Confira os dados antes de salvar.',{preview:p})}
+function processMessage(s){
+ let explicit=/\b(anota|anotar|registre|registrar|salva|salvar|guarda|guardar|cria|criar|adicione|adicionar|coloca|colocar|agenda|agendar|lembrete|lembra-me|lembre-me)\b/i.test(s);
+ if(!explicit){
+  if(/^(ol[aá]|oi|e a[ií]|bom dia|boa tarde|boa noite|tudo bem|como vai)[!?. ,]*$/i.test(s.trim())){
+   addMessage('jarvis','Olá! Estou aqui. Podemos conversar sobre qualquer assunto, explorar suas ideias ou trabalhar em algum projeto. O que você gostaria de conversar?');
+   return;
+  }
+  addMessage('jarvis','Entendi sua mensagem. Não vou criar registros sem você pedir. Ainda estou sem um modelo de IA conectado, então consigo reconhecer alguns comandos e saudações, mas ainda não consigo compreender conversas livres com a profundidade que você espera. A integração segura com uma IA gratuita é a próxima etapa.');
+  return;
+ }
+ let p=analyze(s);if(p.question){ask(p);return}pending=p;addMessage('jarvis','Identifiquei um pedido de registro. Confira os dados antes de salvar.',{preview:p})
+}
 function relatedThemes(p){let t=(p.source||'').toLowerCase(),a=[p.cat||'Outros'];if(/teclado|piano|música|musica|ouvido|cifra|acorde|louvor|cantar/.test(t))a.push('Música');if(/meta|objetivo|quero conseguir|pretendo|até o fim|até o final|no final do ano/.test(t))a.push('Objetivos');if(/deus|jesus|bíblia|igreja|culto|oração/.test(t))a.push('Fé');return [...new Set(a)]}
 function saveRecord(p){let r={id:'j'+Date.now()+'-'+Math.random().toString(36).slice(2,7),type:p.type,cat:p.cat||'Outros',themes:relatedThemes(p),date:p.date||'',time:p.time||'',title:p.title||p.source.slice(0,90),source:p.source,created:new Date().toISOString(),done:false};records.push(r);persist();pending=null;addMessage('jarvis','Registro salvo localmente. '+(connected?'Enviando ao GitHub para sincronizar com seu Obsidian…':'Conecte o GitHub pelo botão superior para sincronizar com o Obsidian.'));if(connected)pushRecord(r).then(()=>addMessage('jarvis','Sincronização concluída. O registro já está no repositório e ficará disponível no Obsidian após a sincronização do plugin Git.')).catch(e=>{setSyncState('connected','Falha ao sincronizar');addMessage('jarvis','O registro foi mantido neste aparelho, mas não consegui enviá-lo ao GitHub: '+e.message+'. Tente sincronizar novamente pelo botão superior.')})}
 function b64utf8(s){return btoa(unescape(encodeURIComponent(s)))}
@@ -317,6 +406,7 @@ $('moduleScreen').addEventListener('keydown',e=>{let n=e.target.closest('[data-b
 $('contextClose').addEventListener('click',()=>$('contextManager').classList.remove('show'));
 $('contextCategory').addEventListener('change',loadContextEditor);
 $('contextSaveAll').addEventListener('click',saveContextSegments);$('backupExport').addEventListener('click',exportBackup);$('backupImport').addEventListener('click',()=>$('backupFile').click());$('backupFile').addEventListener('change',async e=>{let f=e.target.files&&e.target.files[0];if(!f)return;try{await importBackup(f)}catch(err){showToast('Falha ao importar backup: '+err.message)}e.target.value=''});
+$('weatherOpen').addEventListener('click',openWeather);$('weatherClose').addEventListener('click',()=>$('weatherOverlay').classList.remove('show'));$('weatherRefresh').addEventListener('click',()=>loadWeather(true));$('weatherOverlay').addEventListener('click',e=>{if(e.target===$('weatherOverlay'))$('weatherOverlay').classList.remove('show')});
 $('syncButton').addEventListener('click',syncClick);$('cancelConnect').addEventListener('click',()=>$('connectOverlay').classList.remove('show'));$('connectNow').addEventListener('click',connect);$('ghToken').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
 document.addEventListener('click',e=>{let choice=e.target.closest('[data-choice]');if(choice){addMessage('user',choice.dataset.choice);handleChoice(choice.dataset.choice);return}let a=e.target.closest('[data-action]');if(!a)return;let action=a.dataset.action;if(action==='confirm'&&pending){let p=pending;pending=null;saveRecord(p)}if(action==='cancel'){pending=null;addMessage('jarvis','Certo. Não salvei esse registro.')}if(action==='edit'&&pending){let s=pending.source;pending=null;addMessage('jarvis','Envie a mensagem corrigida. O registro anterior não foi salvo.');$('chatInput').value=s;$('chatInput').focus()}});
 async function deleteTask(id){
@@ -329,7 +419,7 @@ async function deleteTask(id){
  }catch(err){showToast('Não foi possível concluir a exclusão: '+err.message)}
 }
 document.addEventListener('click',e=>{let node=e.target.closest('[data-brain-cat]');if(node){$('moduleScreen').innerHTML=renderBrainDetail(node.dataset.brainCat);return}let back=e.target.closest('[data-brain-back]');if(back){$('moduleScreen').innerHTML=renderBrain();return}let pg=e.target.closest('[data-page]');if(pg){setPage(pg.dataset.page);return}let del=e.target.closest('[data-record-delete]');if(del){deleteTask(del.dataset.recordDelete);return}let done=e.target.closest('[data-record-done]');if(done){let r=records.find(x=>x.id===done.dataset.recordDone);if(r){r.done=!r.done;persist();renderModule('tarefas')}}});
-load();seedInitialContext();try{$('rememberToken').checked=!!localStorage.getItem('jarvis_github_token')}catch(e){}contextSegments=CATS.map(cat=>{let all=contextSegments.filter(x=>x.cat===cat);return all.length?{id:'context-'+slug(cat),cat,text:all.map(x=>x.text).join('\n\n'),updated:all.map(x=>x.updated||'').sort().pop()||new Date().toISOString()}:null}).filter(Boolean);persist();renderMessages();moduleNav();setSyncState('','GitHub');restoreConnection();window.addEventListener('pagehide',persist);window.addEventListener('beforeunload',persist);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist()});
+load();seedInitialContext();try{$('rememberToken').checked=!!localStorage.getItem('jarvis_github_token')}catch(e){}contextSegments=CATS.map(cat=>{let all=contextSegments.filter(x=>x.cat===cat);return all.length?{id:'context-'+slug(cat),cat,text:all.map(x=>x.text).join('\n\n'),updated:all.map(x=>x.updated||'').sort().pop()||new Date().toISOString()}:null}).filter(Boolean);persist();renderMessages();moduleNav();setSyncState('','GitHub');restoreConnection();loadWeather();window.addEventListener('pagehide',persist);window.addEventListener('beforeunload',persist);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist()});
 })();
 </script>
 </body>
